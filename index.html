@@ -74,6 +74,12 @@
   .muted{color:#a9b4d0;font-size:13px}
   .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #22305e;border-radius:14px;background:#0c1230;margin-top:8px}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:pre-wrap}
+
+  /* ✅ Fix: make Trip page cards stack their content so dropdown doesn't get squished/hidden */
+  #tab-trip .grid.cols2 > .card{
+    display:flex;
+    flex-direction:column;
+  }
 </style>
 </head>
 
@@ -278,16 +284,20 @@
     <div class="card">
       <h2 style="margin:0 0 6px">Load History</h2>
       <label>Search</label><input id="trip_search" placeholder="search notes/truck"/>
+
       <label>Pick a saved load</label>
-<select id="trip_pickLoad">
-  <option value="">— Select a saved load —</option>
-</select>
-<div class="muted" style="margin-top:6px">
-  Selecting a load will fill the Trip Entry fields (it won’t change saved history unless you Save Load).
-</div>
+      <select id="trip_pickLoad">
+        <option value="">— Select a saved load —</option>
+      </select>
+
+      <div class="muted" style="margin-top:6px">
+        Selecting a load will fill the Trip Entry fields (it won’t change saved history unless you Save Load).
+      </div>
+
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
         <button class="btn" id="btnExportJson">Copy Trips JSON</button>
       </div>
+
       <div id="trip_list" style="margin-top:10px"></div>
     </div>
   </div>
@@ -588,8 +598,9 @@ $("btnSaveTrip").addEventListener("click",()=>{
 });
 
 $("btnClearTrips").addEventListener("click",()=>{ if(confirm("Clear all loads on this phone?")){ saveTrips([]); refreshAll(); }});
-$("trip_search").addEventListener("input",()=>refreshTripsList());
-  $("trip_pickLoad").addEventListener("change", ()=>{
+$("trip_search").addEventListener("input",()=>{ refreshTripsList(); });
+
+$("trip_pickLoad").addEventListener("change", ()=>{
   const id = $("trip_pickLoad").value;
   if(!id) return;
   const t = getTrips().find(x=>x.id===id);
@@ -618,17 +629,17 @@ function refreshTripsList(){
     const calc=calcTripNet(s,t);
     const otraf = num(t.hoursAway)>0 ? calc.net/num(t.hoursAway) : 0;
     return `<div class="kpi"><div>
-      <b>${t.truck}</b><div class="muted">${new Date(t.ts).toLocaleString()} • Miles ${calc.miles.toFixed(0)} • Gross ${money(calc.gross)}</div>
-      <div class="muted">${t.notes||""}</div>
+      <b>${esc(t.truck)}</b><div class="muted">${new Date(t.ts).toLocaleString()} • Miles ${calc.miles.toFixed(0)} • Gross ${money(calc.gross)}</div>
+      <div class="muted">${esc(t.notes||"")}</div>
     </div><div><b>${money(calc.net)}</b><div class="muted">OTRAFF ${num(t.hoursAway)>0?money(otraf)+"/hr":"—"}</div></div></div>`;
   }).join("");
 }
-  function refreshTripsDropdown(){
+
+function refreshTripsDropdown(){
   const trips = getTrips();
   const sel = $("trip_pickLoad");
   if(!sel) return;
 
-  // Keep the first "placeholder" option
   sel.innerHTML = `<option value="">— Select a saved load —</option>` +
     trips.slice(0,200).map(t=>{
       const when = new Date(t.ts).toLocaleString();
@@ -771,199 +782,340 @@ function printInvoicePreview(){
   w.document.close();
 }
 /* ===================== END INVOICES ===================== */
+<script>
+  
+/* ===================== BLUEPRINT + BROKERS + PROFILES + INIT ===================== */
 
-function brokerEmailText(){
-  const s=getSettings();
-  const sc=$("brokerScenario").value;
-  let period="month", miles=s.miles.otrMonth, label="OTR Monthly";
-  if(sc==="LOCAL_MONTH"){period="month"; miles=s.miles.localMonth; label="Local Monthly";}
-  if(sc==="OTR_YEAR"){period="year"; miles=s.miles.otrYear; label="OTR Yearly";}
-  if(sc==="LOCAL_YEAR"){period="year"; miles=s.miles.localYear; label="Local Yearly";}
-  const r=solveGrossRequired(s,miles,period);
-  const mode=s.fleetMode?"FLEET MODE (includes payroll)":"OWNER-OP MODE";
-  return `Minimum All-In Rate Basis (${mode})
-
-Scenario: ${label}
-Miles Assumed: ${miles.toLocaleString()}
-Minimum Sustainable Rate Needed: ${money(r.rpm)} per mile
-
-Assumptions:
-- Fuel: $${s.fuelPrice.toFixed(3)}/gal
-- MPG: ${s.truckMpg.toFixed(2)}
-- Factoring: ${(s.pct.factoring*100).toFixed(2)}% of gross
-- Tax reserve: ${(s.pct.tax*100).toFixed(2)}% of gross (no cap)
-- Annual capped reserves (monthly uses cap/12 unless “Continue after cap” ON)
-
-Included: household + business fixed costs, fuel, factoring, tax reserve, and reserve funding.
-`;
+/* ---------- Utilities ---------- */
+function avgOtrafFromTrips(){
+  const s = getSettings();
+  const trips = getTrips();
+  let netSum = 0;
+  let hoursSum = 0;
+  for (const t of trips){
+    const c = calcTripNet(s, t);
+    const h = num(t.hoursAway);
+    if (h > 0){
+      netSum += c.net;
+      hoursSum += h;
+    }
+  }
+  return hoursSum > 0 ? (netSum / hoursSum) : 0;
 }
-function refreshBrokers(){ $("brokerText").value=brokerEmailText(); }
-$("brokerScenario").addEventListener("change",refreshBrokers);
-$("btnCopyBroker").addEventListener("click",()=>{ navigator.clipboard?.writeText($("brokerText").value); alert("Copied. Paste into email/text."); });
 
+function scenarioConfig(scenario){
+  // returns { label, miles, period }
+  const s = getSettings();
+  switch(scenario){
+    case "OTR_MONTH":  return { label:"OTR (Monthly)",  miles:s.miles.otrMonth,  period:"month" };
+    case "LOCAL_MONTH":return { label:"Local (Monthly)",miles:s.miles.localMonth,period:"month" };
+    case "OTR_YEAR":   return { label:"OTR (Yearly)",   miles:s.miles.otrYear,   period:"year"  };
+    case "LOCAL_YEAR": return { label:"Local (Yearly)", miles:s.miles.localYear, period:"year"  };
+    default:           return { label:"OTR (Monthly)",  miles:s.miles.otrMonth,  period:"month" };
+  }
+}
+
+/* ---------- Blueprint ---------- */
 function renderBlueprint(){
-  const s=getSettings();
-  const trips=getTrips();
-  const {hh,biz}=monthlyTotals(s);
-  const mode=s.fleetMode?"FLEET MODE":"OWNER-OP MODE";
+  const s = getSettings();
 
-  const scenarios=[
-    ["OTR Monthly","month",s.miles.otrMonth],
-    ["Local Monthly","month",s.miles.localMonth],
-    ["OTR Yearly","year",s.miles.otrYear],
-    ["Local Yearly","year",s.miles.localYear],
-  ];
+  const otrM = solveGrossRequired(s, s.miles.otrMonth, "month");
+  const locM = solveGrossRequired(s, s.miles.localMonth, "month");
+  const otrY = solveGrossRequired(s, s.miles.otrYear, "year");
+  const locY = solveGrossRequired(s, s.miles.localYear, "year");
 
-  const scenHtml = scenarios.map(([name,period,miles])=>{
-    const r=solveGrossRequired(s,miles,period);
-    return `<div class="card">
-      <h3 style="margin:0 0 6px">${name}</h3>
-      <div class="kpi"><b>Minimum $/mile</b><div>${money(r.rpm)}/mile</div></div>
-      <div class="kpi"><b>Gross required</b><div>${money(r.gross)}</div></div>
-      <div class="kpi"><b>Fixed</b><div>${money(r.fixed)}</div></div>
-      <div class="kpi"><b>Fuel</b><div>${money(r.fuel)}</div></div>
-      <div class="muted mono" style="margin-top:8px">factoring ${money(r.factoring)}
-tax ${money(r.tax)}
-plates ${money(r.plates)} | ifta ${money(r.ifta)} | maint ${money(r.maint)}
-hwy ${money(r.hwy)} | tires ${money(r.tires)} | usdot ${money(r.usdot)}</div>
-    </div>`;
-  }).join("");
+  const otrafAvg = avgOtrafFromTrips();
 
-  const hoursAwayYTD = trips.reduce((a,t)=>a+num(t.hoursAway),0);
-  const netYTD = trips.reduce((a,t)=>a+calcTripNet(s,t).net,0);
-  const otrafYTD = hoursAwayYTD>0 ? netYTD/hoursAwayYTD : 0;
+  function row(label, val){
+    return `<div class="kpi"><b>${esc(label)}</b><div>${val}</div></div>`;
+  }
 
-  const otrLoads = s.avgMilesLoadOtr>0 ? s.miles.otrMonth/s.avgMilesLoadOtr : 0;
-  const localLoads = s.avgMilesLoadLocal>0 ? s.miles.localMonth/s.avgMilesLoadLocal : 0;
-  const otrHours = otrLoads*s.hoursPerLoad;
-  const localHours = localLoads*s.hoursPerLoad;
+  function breakdown(r){
+    return `
+      ${row("Miles", `${Number(r.miles).toLocaleString()} mi`)}
+      ${row("Fuel", money(r.fuel))}
+      ${row("Fixed (house + business)", money(r.fixed))}
+      ${row("Factoring", money(r.factoring))}
+      ${row("Tax reserve", money(r.tax))}
+      ${row("Plates", money(r.plates))}
+      ${row("IFTA", money(r.ifta))}
+      ${row("Maintenance", money(r.maint))}
+      ${row("Heavy highway", money(r.hwy))}
+      ${row("Tires", money(r.tires))}
+      ${row("USDOT", money(r.usdot))}
+      <div class="kpi" style="border-color:#4aa3ff">
+        <b>Minimum Gross Required</b><div>${money(r.gross)}</div>
+      </div>
+      <div class="kpi" style="border-color:#4aa3ff">
+        <b>Minimum Rate Per Mile</b><div><b>${money(r.rpm)}/mi</b></div>
+      </div>
+    `;
+  }
 
   $("blueprintOut").innerHTML = `
-    <div class="kpi"><b>Mode</b><div>${mode}</div></div>
-    <div class="kpi"><b>Household monthly</b><div>${money(hh)}</div></div>
-    <div class="kpi"><b>Business monthly</b><div>${money(biz)}</div></div>
-    <div class="kpi"><b>O.T.R.A.F.F (YTD)</b><div>${hoursAwayYTD>0?money(otrafYTD)+"/hr":"Enter trips to calculate"}</div></div>
-    <div class="kpi"><b>YTD net revenue</b><div>${money(netYTD)}</div></div>
-    <div class="kpi"><b>Monthly hours away model</b><div>OTR ${otrHours.toFixed(1)} hrs • Local ${localHours.toFixed(1)} hrs</div></div>
-    <div class="grid cols2" style="margin-top:12px">${scenHtml}</div>
+    <div class="card">
+      <h3 style="margin:0 0 8px">Saved Loads KPI</h3>
+      <div class="muted">O.T.R.A.F.F is locked: <b>net revenue ÷ hours away from family</b>.</div>
+      <div class="kpi"><b>Average O.T.R.A.F.F (from saved loads)</b><div>${otrafAvg>0 ? money(otrafAvg)+"/hr" : "—"}</div></div>
+      <div class="muted" style="margin-top:8px">Tip: Save 10–20 loads before trusting this number.</div>
+    </div>
+
+    <div class="grid cols2">
+      <div class="card">
+        <h3 style="margin:0 0 8px">OTR (Monthly)</h3>
+        ${breakdown(otrM)}
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px">Local (Monthly)</h3>
+        ${breakdown(locM)}
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px">OTR (Yearly)</h3>
+        ${breakdown(otrY)}
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px">Local (Yearly)</h3>
+        ${breakdown(locY)}
+      </div>
+    </div>
   `;
 }
 
-function loadProfiles(key){ return loadJSON(key, []); }
-function saveProfiles(key, list){ saveJSON(key, list); }
-function filterProfiles(list,q){
-  q=(q||"").toLowerCase().trim();
-  if(!q) return list.slice(0,50);
-  return list.filter(p=>{
-    const hay=`${p.name||""} ${p.city||""} ${p.state||""} ${p.zip||""} ${p.phone||""} ${p.email||""} ${p.address||""} ${p.notes||""}`.toLowerCase();
+/* ---------- Brokers ---------- */
+function makeBrokerEmailText(){
+  const s = getSettings();
+  const scen = scenarioConfig($("brokerScenario").value);
+  const r = solveGrossRequired(s, scen.miles, scen.period);
+
+  const otrafAvg = avgOtrafFromTrips();
+  const otrafLine = otrafAvg>0
+    ? `My current average O.T.R.A.F.F (net/hr away) is about ${money(otrafAvg)}/hr.`
+    : `I track net/hr away (O.T.R.A.F.F) per load for consistency and efficiency.`;
+
+  // You can tweak this wording later, but it’s usable as-is.
+  return `Subject: Rate Request — ${scen.label}
+
+Hello,
+
+I’m available for a ${scen.label.toLowerCase()} run. Based on my operating costs, my minimum sustainable rate is ${money(r.rpm)}/mile.
+
+Lane details:
+- Origin:
+- Destination:
+- Loaded miles:
+- Deadhead miles:
+- Pickup date/time:
+- Delivery date/time:
+- Equipment:
+- Commodity:
+- Accessorials (detention/layover/tolls):
+
+${otrafLine}
+
+If this load can be booked at or above ${money(r.rpm)}/mile, send the rate confirmation and I’ll get it locked in.
+
+Thank you,
+(Name)
+(Phone)
+(MC/DOT)
+`;
+}
+
+function refreshBrokerText(){
+  $("brokerText").value = makeBrokerEmailText();
+}
+
+$("brokerScenario").addEventListener("change", refreshBrokerText);
+
+$("btnCopyBroker").addEventListener("click", ()=>{
+  const txt = $("brokerText").value || "";
+  navigator.clipboard?.writeText(txt);
+  alert("Broker email copied (if clipboard allowed).");
+});
+
+/* ---------- Profiles (Shipper / Consignee) ---------- */
+function getShippers(){ return loadJSON(KEY_SHIPPERS, []); }
+function saveShippers(list){ saveJSON(KEY_SHIPPERS, list); }
+
+function getConsignees(){ return loadJSON(KEY_CONSIGNEES, []); }
+function saveConsignees(list){ saveJSON(KEY_CONSIGNEES, list); }
+
+function profileLabel(p){
+  const bits = [p.name, p.city, p.state].filter(Boolean);
+  return bits.join(" • ") || "(Unnamed)";
+}
+
+function refreshShipperList(){
+  const q = ($("shipperSearch").value || "").toLowerCase().trim();
+  const list = getShippers().filter(p=>{
+    if(!q) return true;
+    const hay = `${p.name||""} ${p.phone||""} ${p.city||""} ${p.state||""} ${p.email||""} ${p.address||""} ${p.zip||""} ${p.notes||""}`.toLowerCase();
     return hay.includes(q);
-  }).slice(0,50);
-}
-function renderPick(sel, items){
-  sel.innerHTML="";
-  items.forEach(p=>{
-    const o=document.createElement("option");
-    o.value=p.id;
-    o.textContent=`${p.name||"(no name)"} — ${p.city||""} ${p.state||""} ${p.phone||""}`.trim();
-    sel.appendChild(o);
   });
-}
-function uuid(){ return "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16); }
-function upsertProfile(key, profile){
-  let list=loadProfiles(key);
-  if(!profile.id) profile.id=uuid();
-  profile.updatedAt=new Date().toISOString();
-  const idx=list.findIndex(p=>p.id===profile.id || ((p.name||"").toLowerCase()===(profile.name||"").toLowerCase() && (p.zip||"")===(profile.zip||"")));
-  if(idx>=0) list[idx]={...list[idx],...profile};
-  else list.unshift(profile);
-  saveProfiles(key,list);
-  return profile.id;
-}
-function deleteProfile(key,id){ saveJSON(key, loadProfiles(key).filter(p=>p.id!==id)); }
-function clearProfiles(key){ saveJSON(key, []); }
-function fill(prefix,p){
-  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>$(prefix+"_"+f).value = p?.[f]||"");
-}
-function read(prefix){
-  const o={};
-  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>o[f]=$(prefix+"_"+f).value.trim());
-  return o;
+
+  const sel = $("shipperPick");
+  sel.innerHTML = list.map(p=>`<option value="${esc(p.id)}">${esc(profileLabel(p))}</option>`).join("");
 }
 
-let selectedShipper=null, selectedConsignee=null;
+function refreshConsigneeList(){
+  const q = ($("consigneeSearch").value || "").toLowerCase().trim();
+  const list = getConsignees().filter(p=>{
+    if(!q) return true;
+    const hay = `${p.name||""} ${p.phone||""} ${p.city||""} ${p.state||""} ${p.email||""} ${p.address||""} ${p.zip||""} ${p.notes||""}`.toLowerCase();
+    return hay.includes(q);
+  });
 
-function refreshShippers(){
-  const list=loadProfiles(KEY_SHIPPERS);
-  renderPick($("shipperPick"), filterProfiles(list, $("shipperSearch").value));
+  const sel = $("consigneePick");
+  sel.innerHTML = list.map(p=>`<option value="${esc(p.id)}">${esc(profileLabel(p))}</option>`).join("");
 }
-function refreshConsignees(){
-  const list=loadProfiles(KEY_CONSIGNEES);
-  renderPick($("consigneePick"), filterProfiles(list, $("consigneeSearch").value));
+
+function fillShipper(p){
+  $("shipper_name").value = p?.name || "";
+  $("shipper_phone").value = p?.phone || "";
+  $("shipper_city").value = p?.city || "";
+  $("shipper_state").value = p?.state || "";
+  $("shipper_address").value = p?.address || "";
+  $("shipper_zip").value = p?.zip || "";
+  $("shipper_email").value = p?.email || "";
+  $("shipper_notes").value = p?.notes || "";
 }
 
-$("shipperSearch").addEventListener("input",refreshShippers);
-$("consigneeSearch").addEventListener("input",refreshConsignees);
+function fillConsignee(p){
+  $("consignee_name").value = p?.name || "";
+  $("consignee_phone").value = p?.phone || "";
+  $("consignee_city").value = p?.city || "";
+  $("consignee_state").value = p?.state || "";
+  $("consignee_address").value = p?.address || "";
+  $("consignee_zip").value = p?.zip || "";
+  $("consignee_email").value = p?.email || "";
+  $("consignee_notes").value = p?.notes || "";
+}
 
-$("shipperPick").addEventListener("change",()=>{
-  selectedShipper=$("shipperPick").value;
-  const p=loadProfiles(KEY_SHIPPERS).find(x=>x.id===selectedShipper);
-  fill("shipper",p);
-});
-$("consigneePick").addEventListener("change",()=>{
-  selectedConsignee=$("consigneePick").value;
-  const p=loadProfiles(KEY_CONSIGNEES).find(x=>x.id===selectedConsignee);
-  fill("consignee",p);
-});
+$("shipperSearch").addEventListener("input", refreshShipperList);
+$("consigneeSearch").addEventListener("input", refreshConsigneeList);
 
-$("btnSaveShipper").addEventListener("click",()=>{
-  const data=read("shipper");
-  if(!data.name){alert("Shipper name required.");return;}
-  selectedShipper=upsertProfile(KEY_SHIPPERS,{id:selectedShipper,...data});
-  refreshShippers(); alert("Saved.");
-});
-$("btnDeleteShipper").addEventListener("click",()=>{
-  if(!selectedShipper){alert("Select a shipper first.");return;}
-  deleteProfile(KEY_SHIPPERS, selectedShipper); selectedShipper=null; fill("shipper",null); refreshShippers();
-});
-$("btnClearShippers").addEventListener("click",()=>{
-  if(confirm("Clear all shipper profiles on this phone?")){ clearProfiles(KEY_SHIPPERS); selectedShipper=null; fill("shipper",null); refreshShippers(); }
+$("shipperPick").addEventListener("change", ()=>{
+  const id = $("shipperPick").value;
+  const p = getShippers().find(x=>x.id===id);
+  if(p) fillShipper(p);
 });
 
-$("btnSaveConsignee").addEventListener("click",()=>{
-  const data=read("consignee");
-  if(!data.name){alert("Consignee name required.");return;}
-  selectedConsignee=upsertProfile(KEY_CONSIGNEES,{id:selectedConsignee,...data});
-  refreshConsignees(); alert("Saved.");
-});
-$("btnDeleteConsignee").addEventListener("click",()=>{
-  if(!selectedConsignee){alert("Select a consignee first.");return;}
-  deleteProfile(KEY_CONSIGNEES, selectedConsignee); selectedConsignee=null; fill("consignee",null); refreshConsignees();
-});
-$("btnClearConsignees").addEventListener("click",()=>{
-  if(confirm("Clear all consignee profiles on this phone?")){ clearProfiles(KEY_CONSIGNEES); selectedConsignee=null; fill("consignee",null); refreshConsignees(); }
+$("consigneePick").addEventListener("change", ()=>{
+  const id = $("consigneePick").value;
+  const p = getConsignees().find(x=>x.id===id);
+  if(p) fillConsignee(p);
 });
 
-/* invoice button listeners */
+$("btnSaveShipper").addEventListener("click", ()=>{
+  const list = getShippers();
+  const idSelected = $("shipperPick").value || "";
+  const p = {
+    id: idSelected || ("shipper-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16)),
+    name: $("shipper_name").value.trim(),
+    phone: $("shipper_phone").value.trim(),
+    city: $("shipper_city").value.trim(),
+    state: $("shipper_state").value.trim(),
+    address: $("shipper_address").value.trim(),
+    zip: $("shipper_zip").value.trim(),
+    email: $("shipper_email").value.trim(),
+    notes: $("shipper_notes").value.trim()
+  };
+
+  const idx = list.findIndex(x=>x.id===p.id);
+  if(idx>=0) list[idx]=p; else list.unshift(p);
+  saveShippers(list);
+  refreshShipperList();
+});
+
+$("btnDeleteShipper").addEventListener("click", ()=>{
+  const id = $("shipperPick").value;
+  if(!id) return;
+  const list = getShippers().filter(x=>x.id!==id);
+  saveShippers(list);
+  fillShipper(null);
+  refreshShipperList();
+});
+
+$("btnClearShippers").addEventListener("click", ()=>{
+  if(confirm("Clear ALL shipper profiles on this phone?")){
+    saveShippers([]);
+    fillShipper(null);
+    refreshShipperList();
+  }
+});
+
+$("btnSaveConsignee").addEventListener("click", ()=>{
+  const list = getConsignees();
+  const idSelected = $("consigneePick").value || "";
+  const p = {
+    id: idSelected || ("consignee-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16)),
+    name: $("consignee_name").value.trim(),
+    phone: $("consignee_phone").value.trim(),
+    city: $("consignee_city").value.trim(),
+    state: $("consignee_state").value.trim(),
+    address: $("consignee_address").value.trim(),
+    zip: $("consignee_zip").value.trim(),
+    email: $("consignee_email").value.trim(),
+    notes: $("consignee_notes").value.trim()
+  };
+
+  const idx = list.findIndex(x=>x.id===p.id);
+  if(idx>=0) list[idx]=p; else list.unshift(p);
+  saveConsignees(list);
+  refreshConsigneeList();
+});
+
+$("btnDeleteConsignee").addEventListener("click", ()=>{
+  const id = $("consigneePick").value;
+  if(!id) return;
+  const list = getConsignees().filter(x=>x.id!==id);
+  saveConsignees(list);
+  fillConsignee(null);
+  refreshConsigneeList();
+});
+
+$("btnClearConsignees").addEventListener("click", ()=>{
+  if(confirm("Clear ALL consignee profiles on this phone?")){
+    saveConsignees([]);
+    fillConsignee(null);
+    refreshConsigneeList();
+  }
+});
+
+/* ---------- Invoices Buttons ---------- */
 $("btnPreviewInvoice").addEventListener("click", renderInvoicePreview);
 $("btnPrintInvoice").addEventListener("click", printInvoicePreview);
 
+/* ---------- Refresh ---------- */
 function refreshAll(){
-  renderBlueprint();
-  refreshBrokers();
-  refreshTripsList();
-  refreshTripsDropdown();
-  refreshShippers();
-  refreshConsignees();
+  // Trip UI
   previewTrip();
-  renderInvoicePreview();
+  refreshTripsDropdown();
+  refreshTripsList();
+
+  // Outputs
+  renderBlueprint();
+  refreshBrokerText();
+
+  // Profiles
+  refreshShipperList();
+  refreshConsigneeList();
 }
 
+/* ---------- Boot ---------- */
 (function init(){
-  const saved=loadJSON(KEY_SETTINGS,null);
-  setSettings(saved||structuredClone(DEFAULTS));
-  saveJSON(KEY_SETTINGS,getSettings());
+  // load settings
+  const saved = loadJSON(KEY_SETTINGS, null);
+  setSettings(saved || structuredClone(DEFAULTS));
+  saveJSON(KEY_SETTINGS, getSettings());
+
+  // set default broker scenario output immediately
+  refreshBrokerText();
+
+  // initial draws
   refreshAll();
 })();
 </script>
+
 </body>
 </html>
