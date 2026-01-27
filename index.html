@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Trucking Made Simple — Blueprint (MVP)</title>
 <style>
+  /* Make width + padding behave on mobile */
   *, *::before, *::after { box-sizing: border-box; }
 
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1020;color:#eef2ff}
-  header{position:sticky;top:0;background:#070a14;border-bottom:1px solid #22305e;z-index:10}
+  header{position:sticky;top:0;background:#070a14;border-bottom:1px solid #22305e}
   .wrap{max-width:1000px;margin:0 auto;padding:14px}
   h1{font-size:18px;margin:0 0 10px}
   .tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .tabbtn{border:1px solid #22305e;background:#121a33;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:800;cursor:pointer}
+  .tabbtn{border:1px solid #22305e;background:#121a33;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:800}
   .tabbtn.active{border-color:#4aa3ff}
 
   .card{
@@ -40,14 +41,32 @@
   .grid{display:grid;gap:12px}
   @media(min-width:900px){.grid.cols2{grid-template-columns:1fr 1fr}}
 
-  .row{display:grid;grid-template-columns:1fr;gap:10px}
-  @media (min-width: 700px){.row{ grid-template-columns:1fr 1fr; }}
+  /* Mobile-first: stack fields */
+  .row{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
 
-  .actions, .btnrow, .tabs, .toolbar{display:flex;flex-wrap:wrap;gap:10px}
+  /* Only go 2-column when there's room */
+  @media (min-width: 700px){
+    .row{ grid-template-columns:1fr 1fr; }
+  }
 
-  .btn, .tabbtn{flex:1 1 160px;white-space:normal}
+  /* Let button groups wrap on small screens */
+  .actions, .btnrow, .tabs, .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
 
-  .btn{border:1px solid #22305e;background:#1a2550;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:900;cursor:pointer}
+  /* Buttons take up space nicely and wrap instead of overlapping */
+  .btn, .tabbtn{
+    flex:1 1 160px;
+    white-space:normal;
+  }
+
+  .btn{border:1px solid #22305e;background:#1a2550;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:900}
   .btn.primary{background:#1f5bff;border-color:#2b6cff}
   .btn.good{background:#19b56f;border-color:#1ba86a}
   .btn.bad{background:#ff2f58;border-color:#ff2f58}
@@ -55,9 +74,6 @@
   .muted{color:#a9b4d0;font-size:13px}
   .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #22305e;border-radius:14px;background:#0c1230;margin-top:8px}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:pre-wrap}
-
-  /* Trip page cards stack */
-  #tab-trip .grid.cols2 > .card{display:flex;flex-direction:column}
 </style>
 </head>
 
@@ -65,12 +81,12 @@
 <header><div class="wrap">
   <h1>Trucking Made Simple — Blueprint (Owner-Operator Edition)</h1>
   <div class="tabs">
-    <button class="tabbtn active" data-tab="settings" type="button">Settings</button>
-    <button class="tabbtn" data-tab="blueprint" type="button">Blueprint</button>
-    <button class="tabbtn" data-tab="brokers" type="button">Brokers</button>
-    <button class="tabbtn" data-tab="trip" type="button">Trip Entry</button>
-    <button class="tabbtn" data-tab="invoices" type="button">Invoices</button>
-    <button class="tabbtn" data-tab="profiles" type="button">Shipper/Consignee</button>
+    <button class="tabbtn active" data-tab="settings">Settings</button>
+    <button class="tabbtn" data-tab="blueprint">Blueprint</button>
+    <button class="tabbtn" data-tab="brokers">Brokers</button>
+    <button class="tabbtn" data-tab="trip">Trip Entry</button>
+    <button class="tabbtn" data-tab="invoices">Invoices</button>
+    <button class="tabbtn" data-tab="profiles">Shipper/Consignee</button>
   </div>
   <div class="muted" style="margin-top:8px">
     No-Touch Rule: Only <b>Settings</b> is editable. Blueprint/Brokers are read-only outputs. Data saves on this phone (localStorage).
@@ -195,7 +211,7 @@
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn primary" id="btnResetDefaults" type="button">Reset to Defaults</button>
+        <button class="btn primary" id="btnResetDefaults">Reset to Defaults</button>
       </div>
     </div>
   </div>
@@ -223,7 +239,7 @@
         </select>
       </div>
       <div style="align-self:end">
-        <button class="btn good" id="btnCopyBroker" type="button">Copy Email Text</button>
+        <button class="btn good" id="btnCopyBroker">Copy Email Text</button>
       </div>
     </div>
     <label>Email block</label>
@@ -251,8 +267,8 @@
       </div>
       <label>Notes</label><input id="trip_notes" placeholder="lane, broker, etc."/>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn primary" id="btnSaveTrip" type="button">Save Load</button>
-        <button class="btn bad" id="btnClearTrips" type="button">Clear All Loads</button>
+        <button class="btn primary" id="btnSaveTrip">Save Load</button>
+        <button class="btn bad" id="btnClearTrips">Clear All Loads</button>
       </div>
       <div class="kpi"><b>Auto MPG (this load)</b><div id="trip_mpg">—</div></div>
       <div class="kpi"><b>Net revenue (this load)</b><div id="trip_net">—</div></div>
@@ -262,33 +278,23 @@
     <div class="card">
       <h2 style="margin:0 0 6px">Load History</h2>
       <label>Search</label><input id="trip_search" placeholder="search notes/truck"/>
-
-      <label>Pick a saved load</label>
-      <select id="trip_pickLoad">
-        <option value="">— Select a saved load —</option>
-      </select>
-
-      <div class="muted" style="margin-top:6px">
-        Selecting a load will fill the Trip Entry fields (it won’t change saved history unless you Save Load).
-      </div>
-
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn" id="btnExportJson" type="button">Copy Trips JSON</button>
+        <button class="btn" id="btnExportJson">Copy Trips JSON</button>
       </div>
-
       <div id="trip_list" style="margin-top:10px"></div>
     </div>
   </div>
 </section>
 
+<!-- ✅ NEW TAB: INVOICES -->
 <section id="tab-invoices" class="tab" style="display:none">
   <div class="card">
     <h2 style="margin:0 0 6px">Invoices</h2>
     <div class="muted">Preview pulls everything from the Trip Entry tab (current fields + KPIs + Load History). Print opens a clean printable page.</div>
 
     <div class="actions" style="margin-top:10px">
-      <button class="btn primary" id="btnPreviewInvoice" type="button">Preview</button>
-      <button class="btn" id="btnPrintInvoice" type="button">Print</button>
+      <button class="btn primary" id="btnPreviewInvoice">Preview</button>
+      <button class="btn" id="btnPrintInvoice">Print</button>
     </div>
 
     <div id="invoiceOut" style="margin-top:12px"></div>
@@ -316,9 +322,9 @@
       </div>
       <label>Notes</label><input id="shipper_notes"/>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn good" id="btnSaveShipper" type="button">Save/Update</button>
-        <button class="btn bad" id="btnDeleteShipper" type="button">Delete</button>
-        <button class="btn" id="btnClearShippers" type="button">Clear All</button>
+        <button class="btn good" id="btnSaveShipper">Save/Update</button>
+        <button class="btn bad" id="btnDeleteShipper">Delete</button>
+        <button class="btn" id="btnClearShippers">Clear All</button>
       </div>
     </div>
 
@@ -342,9 +348,9 @@
       </div>
       <label>Notes</label><input id="consignee_notes"/>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn good" id="btnSaveConsignee" type="button">Save/Update</button>
-        <button class="btn bad" id="btnDeleteConsignee" type="button">Delete</button>
-        <button class="btn" id="btnClearConsignees" type="button">Clear All</button>
+        <button class="btn good" id="btnSaveConsignee">Save/Update</button>
+        <button class="btn bad" id="btnDeleteConsignee">Delete</button>
+        <button class="btn" id="btnClearConsignees">Clear All</button>
       </div>
     </div>
   </div>
@@ -352,796 +358,572 @@
 
 </main>
 
-<script><script>
-(() => {
-  const KEY_SETTINGS="tms_settings_v1";
-  const KEY_TRIPS="tms_trips_v1";
-  const KEY_SHIPPERS="tms_shippers_v1";
-  const KEY_CONSIGNEES="tms_consignee_v1";
+<script>
+const KEY_SETTINGS="tms_settings_v1";
+const KEY_TRIPS="tms_trips_v1";
+const KEY_SHIPPERS="tms_shippers_v1";
+const KEY_CONSIGNEES="tms_consignee_v1";
 
-  const DEFAULTS={
-    fleetMode:false, driverWageWeekly:1000,
-    fuelPrice:3.659, truckMpg:4.60,
-    hoursPerLoad:48, daysPerLoad:2,
-    avgMilesLoadOtr:600, avgMilesLoadLocal:250,
-    household:{house:1500, util:500, car:500, groc:700, carGas:0, gasUtil:400},
-    business:{truck:1500, trailer:1100, ins:1500, phone:150, park:300, eld:25, lb:169},
-    pct:{factoring:0.02, tax:0.28, plates:0.05, ifta:0.05, maint:0.07, hwy:0.02, tires:0.05, usdot:0.02},
-    cap:{plates:2500, ifta:2500, maint:5000, hwy:550, tires:5000, usdot:150},
-    afterCap:{plates:false, ifta:false, maint:false, hwy:false, tires:false, usdot:false},
-    miles:{otrMonth:12500, localMonth:6000, otrYear:144000, localYear:72000}
-  };
+const DEFAULTS={
+  fleetMode:false, driverWageWeekly:1000,
+  fuelPrice:3.659, truckMpg:4.60,
+  hoursPerLoad:48, daysPerLoad:2,
+  avgMilesLoadOtr:600, avgMilesLoadLocal:250,
+  household:{house:1500, util:500, car:500, groc:700, carGas:0, gasUtil:400},
+  business:{truck:1500, trailer:1100, ins:1500, phone:150, park:300, eld:25, lb:169},
+  pct:{factoring:0.02, tax:0.28, plates:0.05, ifta:0.05, maint:0.07, hwy:0.02, tires:0.05, usdot:0.02},
+  cap:{plates:2500, ifta:2500, maint:5000, hwy:550, tires:5000, usdot:150},
+  afterCap:{plates:false, ifta:false, maint:false, hwy:false, tires:false, usdot:false},
+  miles:{otrMonth:12500, localMonth:6000, otrYear:144000, localYear:72000}
+};
 
-  const $ = (id) => document.getElementById(id);
-  const num = (v) => Number(v || 0);
-  const money = (n) => Number(n||0).toLocaleString(undefined,{style:"currency",currency:"USD"});
+const $=id=>document.getElementById(id);
+const num=v=>Number(v||0);
+const money=n=>Number(n||0).toLocaleString(undefined,{style:"currency",currency:"USD"});
 
-  const clone = (obj) => {
-    if (typeof structuredClone === "function") return structuredClone(obj);
-    return JSON.parse(JSON.stringify(obj));
-  };
+function loadJSON(key, fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch{return fallback}}
+function saveJSON(key, obj){localStorage.setItem(key, JSON.stringify(obj))}
 
-  const makeId = () => {
-    try{
-      if (crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
-      if (crypto && crypto.getRandomValues){
-        const bytes = new Uint8Array(16);
-        crypto.getRandomValues(bytes);
-        bytes[6] = (bytes[6] & 0x0f) | 0x40;
-        bytes[8] = (bytes[8] & 0x3f) | 0x80;
-        const hex = [...bytes].map(b => b.toString(16).padStart(2,"0"));
-        return `${hex.slice(0,4).join("")}-${hex.slice(4,6).join("")}-${hex.slice(6,8).join("")}-${hex.slice(8,10).join("")}-${hex.slice(10,16).join("")}`;
-      }
-    }catch{}
-    return String(Date.now()) + "_" + Math.random().toString(16).slice(2);
-  };
-
-  const bind = (id, evt, fn) => {
-    const el = $(id);
-    if (!el) return;
-    el.addEventListener(evt, fn);
-  };
-
-  function esc(s){
-    return String(s ?? "").replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[m]));
-  }
-
-  function loadJSON(key, fallback){
-    try{
-      const r = localStorage.getItem(key);
-      return r ? JSON.parse(r) : fallback;
-    }catch{
-      return fallback;
-    }
-  }
-  function saveJSON(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
-
-  function getTrips(){ return loadJSON(KEY_TRIPS, []); }
-  function saveTrips(list){ saveJSON(KEY_TRIPS, list); }
-
-  function getShippers(){ return loadJSON(KEY_SHIPPERS, []); }
-  function saveShippers(list){ saveJSON(KEY_SHIPPERS, list); }
-
-  function getConsignees(){ return loadJSON(KEY_CONSIGNEES, []); }
-  function saveConsignees(list){ saveJSON(KEY_CONSIGNEES, list); }
-
-  function getSettings(){
-    const s={
-      fleetMode: $("fleetMode").value==="true",
-      driverWageWeekly: num($("driverWageWeekly").value),
-      fuelPrice: num($("fuelPrice").value),
-      truckMpg: num($("truckMpg").value) || DEFAULTS.truckMpg,
-      hoursPerLoad: num($("hoursPerLoad").value),
-      daysPerLoad: num($("daysPerLoad").value),
-      avgMilesLoadOtr: num($("avgMilesLoadOtr").value),
-      avgMilesLoadLocal: num($("avgMilesLoadLocal").value),
-      household:{
-        house:num($("hh_house").value), util:num($("hh_util").value), car:num($("hh_car").value),
-        groc:num($("hh_groc").value), carGas:num($("hh_carGas").value), gasUtil:num($("hh_gasUtil").value)
-      },
-      business:{
-        truck:num($("biz_truck").value), trailer:num($("biz_trailer").value), ins:num($("biz_ins").value),
-        phone:num($("biz_phone").value), park:num($("biz_park").value), eld:num($("biz_eld").value), lb:num($("biz_lb").value)
-      },
-      pct:{
-        factoring:num($("pct_factoring").value), tax:num($("pct_tax").value),
-        plates:num($("pct_plates").value), ifta:num($("pct_ifta").value), maint:num($("pct_maint").value),
-        hwy:num($("pct_hwy").value), tires:num($("pct_tires").value), usdot:num($("pct_usdot").value)
-      },
-      cap:{
-        plates:num($("cap_plates").value), ifta:num($("cap_ifta").value), maint:num($("cap_maint").value),
-        hwy:num($("cap_hwy").value), tires:num($("cap_tires").value), usdot:num($("cap_usdot").value)
-      },
-      afterCap:{
-        plates:$("aftercap_plates").value==="true", ifta:$("aftercap_ifta").value==="true",
-        maint:$("aftercap_maint").value==="true", hwy:$("aftercap_hwy").value==="true",
-        tires:$("aftercap_tires").value==="true", usdot:$("aftercap_usdot").value==="true"
-      },
-      miles:{
-        otrMonth:num($("m_otr").value), localMonth:num($("m_local").value),
-        otrYear:num($("y_otr").value), localYear:num($("y_local").value)
-      }
-    };
-
-    // sync hours/days
-    if(s.hoursPerLoad>0) s.daysPerLoad = s.hoursPerLoad/24;
-    if(s.daysPerLoad>0 && s.hoursPerLoad<=0) s.hoursPerLoad = s.daysPerLoad*24;
-    return s;
-  }
-
-  function setSettings(s){
-    $("fleetMode").value=String(!!s.fleetMode);
-    $("driverWageWeekly").value=s.driverWageWeekly;
-
-    $("fuelPrice").value=s.fuelPrice;
-    $("truckMpg").value=s.truckMpg;
-
-    $("hoursPerLoad").value=s.hoursPerLoad;
-    $("daysPerLoad").value=s.daysPerLoad;
-
-    $("avgMilesLoadOtr").value=s.avgMilesLoadOtr;
-    $("avgMilesLoadLocal").value=s.avgMilesLoadLocal;
-
-    $("hh_house").value=s.household.house; $("hh_util").value=s.household.util;
-    $("hh_car").value=s.household.car; $("hh_groc").value=s.household.groc;
-    $("hh_carGas").value=s.household.carGas; $("hh_gasUtil").value=s.household.gasUtil;
-
-    $("biz_truck").value=s.business.truck; $("biz_trailer").value=s.business.trailer;
-    $("biz_ins").value=s.business.ins; $("biz_phone").value=s.business.phone;
-    $("biz_park").value=s.business.park; $("biz_eld").value=s.business.eld; $("biz_lb").value=s.business.lb;
-
-    $("pct_factoring").value=s.pct.factoring; $("pct_tax").value=s.pct.tax;
-    $("pct_plates").value=s.pct.plates; $("cap_plates").value=s.cap.plates; $("aftercap_plates").value=String(!!s.afterCap.plates);
-    $("pct_ifta").value=s.pct.ifta; $("cap_ifta").value=s.cap.ifta; $("aftercap_ifta").value=String(!!s.afterCap.ifta);
-    $("pct_maint").value=s.pct.maint; $("cap_maint").value=s.cap.maint; $("aftercap_maint").value=String(!!s.afterCap.maint);
-    $("pct_hwy").value=s.pct.hwy; $("cap_hwy").value=s.cap.hwy; $("aftercap_hwy").value=String(!!s.afterCap.hwy);
-    $("pct_tires").value=s.pct.tires; $("cap_tires").value=s.cap.tires; $("aftercap_tires").value=String(!!s.afterCap.tires);
-    $("pct_usdot").value=s.pct.usdot; $("cap_usdot").value=s.cap.usdot; $("aftercap_usdot").value=String(!!s.afterCap.usdot);
-
-    $("m_otr").value=s.miles.otrMonth; $("m_local").value=s.miles.localMonth;
-    $("y_otr").value=s.miles.otrYear; $("y_local").value=s.miles.localYear;
-  }
-
-  function persistSettings(){
-    saveJSON(KEY_SETTINGS, getSettings());
+document.querySelectorAll(".tabbtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll("section.tab").forEach(s=>s.style.display="none");
+    $("tab-"+btn.dataset.tab).style.display="block";
     refreshAll();
-  }
+  });
+});
 
-  function monthlyTotals(s){
-    const hh=Object.values(s.household).reduce((a,b)=>a+num(b),0);
-    let biz=Object.values(s.business).reduce((a,b)=>a+num(b),0);
-    if(s.fleetMode) biz += num(s.driverWageWeekly)*52/12;
-    return {hh,biz};
-  }
-
-  function fuelCostForMiles(s,miles){ return (miles/Math.max(0.01,s.truckMpg))*s.fuelPrice; }
-  function capForPeriod(annualCap, period){ return period==="year"?annualCap:annualCap/12; }
-  function cappedAmt(gross,p,capAnnual,period,after){
-    const raw=gross*p;
-    const cap=capForPeriod(capAnnual,period);
-    return after?raw:Math.min(raw,cap);
-  }
-
-  function solveGrossRequired(s,miles,period){
-    const {hh,biz}=monthlyTotals(s);
-    const fixed=(period==="year")?(hh+biz)*12:(hh+biz);
-    const fuel=fuelCostForMiles(s,miles);
-    let gross=(fixed+fuel)/Math.max(0.01,(1-(s.pct.factoring+s.pct.tax+s.pct.plates+s.pct.ifta+s.pct.maint+s.pct.hwy+s.pct.tires+s.pct.usdot)));
-
-    for(let i=0;i<60;i++){
-      const factoring=gross*s.pct.factoring;
-      const tax=gross*s.pct.tax;
-      const plates=cappedAmt(gross,s.pct.plates,s.cap.plates,period,s.afterCap.plates);
-      const ifta=cappedAmt(gross,s.pct.ifta,s.cap.ifta,period,s.afterCap.ifta);
-      const maint=cappedAmt(gross,s.pct.maint,s.cap.maint,period,s.afterCap.maint);
-      const hwy=cappedAmt(gross,s.pct.hwy,s.cap.hwy,period,s.afterCap.hwy);
-      const tires=cappedAmt(gross,s.pct.tires,s.cap.tires,period,s.afterCap.tires);
-      const usdot=cappedAmt(gross,s.pct.usdot,s.cap.usdot,period,s.afterCap.usdot);
-      const next=fixed+fuel+factoring+tax+plates+ifta+maint+hwy+tires+usdot;
-      if(Math.abs(next-gross)<1e-6*Math.max(1,gross)){gross=next;break}
-      gross=next;
+function getSettings(){
+  const s={
+    fleetMode: $("fleetMode").value==="true",
+    driverWageWeekly: num($("driverWageWeekly").value),
+    fuelPrice: num($("fuelPrice").value),
+    truckMpg: num($("truckMpg").value) || DEFAULTS.truckMpg,
+    hoursPerLoad: num($("hoursPerLoad").value),
+    daysPerLoad: num($("daysPerLoad").value),
+    avgMilesLoadOtr: num($("avgMilesLoadOtr").value),
+    avgMilesLoadLocal: num($("avgMilesLoadLocal").value),
+    household:{
+      house:num($("hh_house").value), util:num($("hh_util").value), car:num($("hh_car").value),
+      groc:num($("hh_groc").value), carGas:num($("hh_carGas").value), gasUtil:num($("hh_gasUtil").value)
+    },
+    business:{
+      truck:num($("biz_truck").value), trailer:num($("biz_trailer").value), ins:num($("biz_ins").value),
+      phone:num($("biz_phone").value), park:num($("biz_park").value), eld:num($("biz_eld").value), lb:num($("biz_lb").value)
+    },
+    pct:{
+      factoring:num($("pct_factoring").value), tax:num($("pct_tax").value),
+      plates:num($("pct_plates").value), ifta:num($("pct_ifta").value), maint:num($("pct_maint").value),
+      hwy:num($("pct_hwy").value), tires:num($("pct_tires").value), usdot:num($("pct_usdot").value)
+    },
+    cap:{
+      plates:num($("cap_plates").value), ifta:num($("cap_ifta").value), maint:num($("cap_maint").value),
+      hwy:num($("cap_hwy").value), tires:num($("cap_tires").value), usdot:num($("cap_usdot").value)
+    },
+    afterCap:{
+      plates:$("aftercap_plates").value==="true", ifta:$("aftercap_ifta").value==="true",
+      maint:$("aftercap_maint").value==="true", hwy:$("aftercap_hwy").value==="true",
+      tires:$("aftercap_tires").value==="true", usdot:$("aftercap_usdot").value==="true"
+    },
+    miles:{
+      otrMonth:num($("m_otr").value), localMonth:num($("m_local").value),
+      otrYear:num($("y_otr").value), localYear:num($("y_local").value)
     }
+  };
 
-    const r={period,miles,fixed,fuel,gross,rpm:gross/Math.max(1,miles)};
-    r.factoring=gross*s.pct.factoring; r.tax=gross*s.pct.tax;
-    r.plates=cappedAmt(gross,s.pct.plates,s.cap.plates,period,s.afterCap.plates);
-    r.ifta=cappedAmt(gross,s.pct.ifta,s.cap.ifta,period,s.afterCap.ifta);
-    r.maint=cappedAmt(gross,s.pct.maint,s.cap.maint,period,s.afterCap.maint);
-    r.hwy=cappedAmt(gross,s.pct.hwy,s.cap.hwy,period,s.afterCap.hwy);
-    r.tires=cappedAmt(gross,s.pct.tires,s.cap.tires,period,s.afterCap.tires);
-    r.usdot=cappedAmt(gross,s.pct.usdot,s.cap.usdot,period,s.afterCap.usdot);
-    return r;
+  // sync hours/days
+  if(s.hoursPerLoad>0) s.daysPerLoad = s.hoursPerLoad/24;
+  if(s.daysPerLoad>0 && s.hoursPerLoad<=0) s.hoursPerLoad = s.daysPerLoad*24;
+
+  return s;
+}
+
+function setSettings(s){
+  $("fleetMode").value=String(!!s.fleetMode);
+  $("driverWageWeekly").value=s.driverWageWeekly;
+
+  $("fuelPrice").value=s.fuelPrice;
+  $("truckMpg").value=s.truckMpg;
+
+  $("hoursPerLoad").value=s.hoursPerLoad;
+  $("daysPerLoad").value=s.daysPerLoad;
+
+  $("avgMilesLoadOtr").value=s.avgMilesLoadOtr;
+  $("avgMilesLoadLocal").value=s.avgMilesLoadLocal;
+
+  $("hh_house").value=s.household.house; $("hh_util").value=s.household.util;
+  $("hh_car").value=s.household.car; $("hh_groc").value=s.household.groc;
+  $("hh_carGas").value=s.household.carGas; $("hh_gasUtil").value=s.household.gasUtil;
+
+  $("biz_truck").value=s.business.truck; $("biz_trailer").value=s.business.trailer;
+  $("biz_ins").value=s.business.ins; $("biz_phone").value=s.business.phone;
+  $("biz_park").value=s.business.park; $("biz_eld").value=s.business.eld; $("biz_lb").value=s.business.lb;
+
+  $("pct_factoring").value=s.pct.factoring; $("pct_tax").value=s.pct.tax;
+  $("pct_plates").value=s.pct.plates; $("cap_plates").value=s.cap.plates; $("aftercap_plates").value=String(!!s.afterCap.plates);
+  $("pct_ifta").value=s.pct.ifta; $("cap_ifta").value=s.cap.ifta; $("aftercap_ifta").value=String(!!s.afterCap.ifta);
+  $("pct_maint").value=s.pct.maint; $("cap_maint").value=s.cap.maint; $("aftercap_maint").value=String(!!s.afterCap.maint);
+  $("pct_hwy").value=s.pct.hwy; $("cap_hwy").value=s.cap.hwy; $("aftercap_hwy").value=String(!!s.afterCap.hwy);
+  $("pct_tires").value=s.pct.tires; $("cap_tires").value=s.cap.tires; $("aftercap_tires").value=String(!!s.afterCap.tires);
+  $("pct_usdot").value=s.pct.usdot; $("cap_usdot").value=s.cap.usdot; $("aftercap_usdot").value=String(!!s.afterCap.usdot);
+
+  $("m_otr").value=s.miles.otrMonth; $("m_local").value=s.miles.localMonth;
+  $("y_otr").value=s.miles.otrYear; $("y_local").value=s.miles.localYear;
+}
+
+function persistSettings(){ saveJSON(KEY_SETTINGS, getSettings()); refreshAll(); }
+
+[
+  "fleetMode","driverWageWeekly","fuelPrice","truckMpg","hoursPerLoad","daysPerLoad","avgMilesLoadOtr","avgMilesLoadLocal",
+  "hh_house","hh_util","hh_car","hh_groc","hh_carGas","hh_gasUtil",
+  "biz_truck","biz_trailer","biz_ins","biz_phone","biz_park","biz_eld","biz_lb",
+  "pct_factoring","pct_tax","pct_plates","cap_plates","aftercap_plates",
+  "pct_ifta","cap_ifta","aftercap_ifta",
+  "pct_maint","cap_maint","aftercap_maint",
+  "pct_hwy","cap_hwy","aftercap_hwy",
+  "pct_tires","cap_tires","aftercap_tires",
+  "pct_usdot","cap_usdot","aftercap_usdot",
+  "m_otr","m_local","y_otr","y_local"
+].forEach(id=>{ $(id).addEventListener("input",persistSettings); $(id).addEventListener("change",persistSettings); });
+
+$("hoursPerLoad").addEventListener("input",()=>{ $("daysPerLoad").value=(num($("hoursPerLoad").value)/24).toFixed(2); });
+$("daysPerLoad").addEventListener("input",()=>{ $("hoursPerLoad").value=(num($("daysPerLoad").value)*24).toFixed(2); });
+
+$("btnResetDefaults").addEventListener("click",()=>{ setSettings(structuredClone(DEFAULTS)); persistSettings(); });
+
+function monthlyTotals(s){
+  const hh=Object.values(s.household).reduce((a,b)=>a+num(b),0);
+  let biz=Object.values(s.business).reduce((a,b)=>a+num(b),0);
+  if(s.fleetMode) biz += num(s.driverWageWeekly)*52/12;
+  return {hh,biz};
+}
+function fuelCostForMiles(s,miles){ return (miles/Math.max(0.01,s.truckMpg))*s.fuelPrice; }
+function capForPeriod(annualCap, period){ return period==="year"?annualCap:annualCap/12; }
+function cappedAmt(gross,p,capAnnual,period,after){ const raw=gross*p; const cap=capForPeriod(capAnnual,period); return after?raw:Math.min(raw,cap); }
+
+function solveGrossRequired(s,miles,period){
+  const {hh,biz}=monthlyTotals(s);
+  const fixed=(period==="year")?(hh+biz)*12:(hh+biz);
+  const fuel=fuelCostForMiles(s,miles);
+  let gross=(fixed+fuel)/Math.max(0.01,(1-(s.pct.factoring+s.pct.tax+s.pct.plates+s.pct.ifta+s.pct.maint+s.pct.hwy+s.pct.tires+s.pct.usdot)));
+
+  for(let i=0;i<60;i++){
+    const factoring=gross*s.pct.factoring;
+    const tax=gross*s.pct.tax;
+    const plates=cappedAmt(gross,s.pct.plates,s.cap.plates,period,s.afterCap.plates);
+    const ifta=cappedAmt(gross,s.pct.ifta,s.cap.ifta,period,s.afterCap.ifta);
+    const maint=cappedAmt(gross,s.pct.maint,s.cap.maint,period,s.afterCap.maint);
+    const hwy=cappedAmt(gross,s.pct.hwy,s.cap.hwy,period,s.afterCap.hwy);
+    const tires=cappedAmt(gross,s.pct.tires,s.cap.tires,period,s.afterCap.tires);
+    const usdot=cappedAmt(gross,s.pct.usdot,s.cap.usdot,period,s.afterCap.usdot);
+    const next=fixed+fuel+factoring+tax+plates+ifta+maint+hwy+tires+usdot;
+    if(Math.abs(next-gross)<1e-6*Math.max(1,gross)){gross=next;break}
+    gross=next;
   }
+  const r={period,miles,fixed,fuel,gross,rpm:gross/Math.max(1,miles)};
+  r.factoring=gross*s.pct.factoring; r.tax=gross*s.pct.tax;
+  r.plates=cappedAmt(gross,s.pct.plates,s.cap.plates,period,s.afterCap.plates);
+  r.ifta=cappedAmt(gross,s.pct.ifta,s.cap.ifta,period,s.afterCap.ifta);
+  r.maint=cappedAmt(gross,s.pct.maint,s.cap.maint,period,s.afterCap.maint);
+  r.hwy=cappedAmt(gross,s.pct.hwy,s.cap.hwy,period,s.afterCap.hwy);
+  r.tires=cappedAmt(gross,s.pct.tires,s.cap.tires,period,s.afterCap.tires);
+  r.usdot=cappedAmt(gross,s.pct.usdot,s.cap.usdot,period,s.afterCap.usdot);
+  return r;
+}
 
-  function calcTripNet(s, t){
-    const miles=num(t.deadhead)+num(t.loaded);
-    const gross=num(t.gross);
-    const gallons=num(t.gallons);
-    const misc=num(t.misc);
-    const fuel = gallons>0 ? gallons*s.fuelPrice : fuelCostForMiles(s,miles);
+function getTrips(){ return loadJSON(KEY_TRIPS, []); }
+function saveTrips(list){ saveJSON(KEY_TRIPS, list); }
 
-    const net = gross - (
-      fuel + misc +
-      gross*s.pct.factoring + gross*s.pct.tax +
-      gross*s.pct.plates + gross*s.pct.ifta + gross*s.pct.maint +
-      gross*s.pct.hwy + gross*s.pct.tires + gross*s.pct.usdot
-    );
-    return {miles,gross,fuel,net,misc};
-  }
+function calcTripNet(s, t){
+  const miles=num(t.deadhead)+num(t.loaded);
+  const gross=num(t.gross);
+  const gallons=num(t.gallons);
+  const misc=num(t.misc);
+  const fuel = gallons>0 ? gallons*s.fuelPrice : fuelCostForMiles(s,miles);
+  const net = gross - (fuel + misc + gross*s.pct.factoring + gross*s.pct.tax + gross*s.pct.plates + gross*s.pct.ifta + gross*s.pct.maint + gross*s.pct.hwy + gross*s.pct.tires + gross*s.pct.usdot);
+  return {miles,gross,fuel,net};
+}
 
-  function previewTrip(){
-    const s=getSettings();
-    const t={
-      deadhead:num($("trip_deadhead").value), loaded:num($("trip_loaded").value),
-      gross:num($("trip_gross").value), gallons:num($("trip_gallons").value),
-      misc:num($("trip_misc").value), hoursAway:num($("trip_hoursAway").value)
-    };
-    const miles=t.deadhead+t.loaded;
-    const mpg=t.gallons>0 ? miles/t.gallons : 0;
-    const {net}=calcTripNet(s,t);
-    const otraf = t.hoursAway>0 ? net/t.hoursAway : 0;
-    $("trip_mpg").textContent = mpg>0 ? mpg.toFixed(2) : "—";
-    $("trip_net").textContent = money(net);
-    $("trip_otraff").textContent = t.hoursAway>0 ? money(otraf)+"/hr" : "—";
-  }
+function previewTrip(){
+  const s=getSettings();
+  const t={
+    deadhead:num($("trip_deadhead").value), loaded:num($("trip_loaded").value),
+    gross:num($("trip_gross").value), gallons:num($("trip_gallons").value),
+    misc:num($("trip_misc").value), hoursAway:num($("trip_hoursAway").value)
+  };
+  const miles=t.deadhead+t.loaded;
+  const mpg=t.gallons>0 ? miles/t.gallons : 0;
+  const {net}=calcTripNet(s,t);
+  const otraf = t.hoursAway>0 ? net/t.hoursAway : 0;
+  $("trip_mpg").textContent = mpg>0 ? mpg.toFixed(2) : "—";
+  $("trip_net").textContent = money(net);
+  $("trip_otraff").textContent = t.hoursAway>0 ? money(otraf)+"/hr" : "—";
+}
+["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway"].forEach(id=>$(id).addEventListener("input",previewTrip));
 
-  function fillTripEntryFromLoad(t){
-    $("trip_truck").value = t.truck || "";
-    $("trip_deadhead").value = Number(t.deadhead||0);
-    $("trip_loaded").value = Number(t.loaded||0);
-    $("trip_gross").value = Number(t.gross||0);
-    $("trip_gallons").value = Number(t.gallons||0);
-    $("trip_misc").value = Number(t.misc||0);
-    $("trip_hoursAway").value = Number(t.hoursAway||0);
-    $("trip_notes").value = t.notes || "";
-    previewTrip();
-  }
+$("btnSaveTrip").addEventListener("click",()=>{
+  const t={
+    id: "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16),
+    ts:new Date().toISOString(),
+    truck: $("trip_truck").value.trim()||"Truck",
+    deadhead:num($("trip_deadhead").value),
+    loaded:num($("trip_loaded").value),
+    gross:num($("trip_gross").value),
+    gallons:num($("trip_gallons").value),
+    misc:num($("trip_misc").value),
+    hoursAway:num($("trip_hoursAway").value),
+    notes:$("trip_notes").value.trim()
+  };
+  const list=getTrips(); list.unshift(t); saveTrips(list);
+  ["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway","trip_notes"].forEach(id=>$(id).value="");
+  previewTrip(); refreshAll();
+});
 
-  function refreshTripsDropdown(){
-    const trips = getTrips();
-    const sel = $("trip_pickLoad");
-    if(!sel) return;
-    sel.innerHTML = `<option value="">— Select a saved load —</option>` +
-      trips.slice(0,200).map(t=>{
-        const when = new Date(t.ts).toLocaleString();
-        const label = `${t.truck || "Truck"} • ${when} • $${Number(t.gross||0).toFixed(0)} • ${Number(t.loaded||0).toFixed(0)}mi`;
-        return `<option value="${esc(t.id)}">${esc(label)}</option>`;
-      }).join("");
-  }
+$("btnClearTrips").addEventListener("click",()=>{ if(confirm("Clear all loads on this phone?")){ saveTrips([]); refreshAll(); }});
+$("trip_search").addEventListener("input",()=>refreshTripsList());
 
-  function refreshTripsList(){
-    const q=($("trip_search")?.value||"").toLowerCase().trim();
-    const s=getSettings();
-    const list=getTrips().filter(t=>{
-      if(!q) return true;
-      const hay=`${t.truck||""} ${t.notes||""} ${t.ts||""}`.toLowerCase();
-      return hay.includes(q);
-    }).slice(0,50);
+$("btnExportJson").addEventListener("click",()=>{
+  const txt=JSON.stringify(getTrips(),null,2);
+  navigator.clipboard?.writeText(txt);
+  alert("Trips JSON copied (if clipboard allowed).");
+});
 
-    const box=$("trip_list");
-    if(!box) return;
-    if(!list.length){ box.innerHTML='<div class="muted">No saved loads yet.</div>'; return; }
+function refreshTripsList(){
+  const q=($("trip_search").value||"").toLowerCase().trim();
+  const s=getSettings();
+  const list=getTrips().filter(t=>{
+    if(!q) return true;
+    const hay=`${t.truck||""} ${t.notes||""} ${t.ts||""}`.toLowerCase();
+    return hay.includes(q);
+  }).slice(0,50);
 
-    box.innerHTML = list.map(t=>{
-      const calc=calcTripNet(s,t);
-      const otraf = num(t.hoursAway)>0 ? calc.net/num(t.hoursAway) : 0;
-      return `<div class="kpi"><div>
-        <b>${esc(t.truck || "Truck")}</b><div class="muted">${new Date(t.ts).toLocaleString()} • Miles ${calc.miles.toFixed(0)} • Gross ${money(calc.gross)}</div>
-        <div class="muted">${esc(t.notes||"")}</div>
-      </div><div><b>${money(calc.net)}</b><div class="muted">OTRAFF ${num(t.hoursAway)>0?money(otraf)+"/hr":"—"}</div></div></div>`;
-    }).join("");
-  }
+  const box=$("trip_list");
+  if(!list.length){ box.innerHTML='<div class="muted">No saved loads yet.</div>'; return; }
 
-  function avgOTRAFFFromSavedTrips(){
-    const s = getSettings();
-    const trips = getTrips();
-    let totalNet=0, totalHours=0;
-    for(const t of trips){
-      const calc = calcTripNet(s,t);
-      const h = num(t.hoursAway);
-      if(h>0){
-        totalNet += calc.net;
-        totalHours += h;
-      }
-    }
-    return totalHours>0 ? (totalNet/totalHours) : 0;
-  }
+  box.innerHTML = list.map(t=>{
+    const calc=calcTripNet(s,t);
+    const otraf = num(t.hoursAway)>0 ? calc.net/num(t.hoursAway) : 0;
+    return `<div class="kpi"><div>
+      <b>${t.truck}</b><div class="muted">${new Date(t.ts).toLocaleString()} • Miles ${calc.miles.toFixed(0)} • Gross ${money(calc.gross)}</div>
+      <div class="muted">${t.notes||""}</div>
+    </div><div><b>${money(calc.net)}</b><div class="muted">OTRAFF ${num(t.hoursAway)>0?money(otraf)+"/hr":"—"}</div></div></div>`;
+  }).join("");
+}
 
-  // Clipboard helper (because browsers are dramatic)
-  async function copyText(txt){
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(txt);
-        return true;
-      }
-    }catch{}
-    try{
-      const ta=document.createElement("textarea");
-      ta.value=txt;
-      ta.style.position="fixed";
-      ta.style.left="-9999px";
-      ta.style.top="0";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      const ok=document.execCommand("copy");
-      ta.remove();
-      return ok;
-    }catch{
-      return false;
-    }
-  }
+/* ===================== INVOICES ===================== */
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
 
-  // ---------- BLUEPRINT ----------
-  function renderBlueprint(){
-    const out = $("blueprintOut");
-    if(!out) return;
+function buildTripsHtmlForInvoice(){
+  const s = getSettings();
+  const trips = getTrips();
 
-    const s=getSettings();
-    const otrM = solveGrossRequired(s, s.miles.otrMonth, "month");
-    const locM = solveGrossRequired(s, s.miles.localMonth, "month");
-    const otrY = solveGrossRequired(s, s.miles.otrYear, "year");
-    const locY = solveGrossRequired(s, s.miles.localYear, "year");
+  const current = {
+    truck: $("trip_truck")?.value?.trim() || "",
+    deadhead: num($("trip_deadhead")?.value),
+    loaded: num($("trip_loaded")?.value),
+    gross: num($("trip_gross")?.value),
+    gallons: num($("trip_gallons")?.value),
+    misc: num($("trip_misc")?.value),
+    hoursAway: num($("trip_hoursAway")?.value),
+    notes: $("trip_notes")?.value?.trim() || ""
+  };
 
-    const otraf = avgOTRAFFFromSavedTrips();
+  const milesCur = current.deadhead + current.loaded;
+  const mpgCur = current.gallons > 0 ? milesCur / current.gallons : 0;
+  const calcCur = calcTripNet(s, current);
+  const otrafCur = current.hoursAway > 0 ? calcCur.net / current.hoursAway : 0;
 
-    const block = (title, r) => `
-      <div class="card" style="margin-top:10px">
-        <b>${esc(title)}</b>
-        <div class="kpi"><span>Minimum Gross Required</span><b>${money(r.gross)}</b></div>
-        <div class="kpi"><span>Minimum Rate / Mile</span><b>${money(r.rpm)}/mi</b></div>
-        <div class="muted" style="margin-top:8px">Assumptions: ${r.miles.toLocaleString()} miles (${r.period}). Fixed: ${money(r.fixed)} • Fuel: ${money(r.fuel)}</div>
-        <details style="margin-top:8px">
-          <summary class="muted" style="cursor:pointer">Show breakdown</summary>
-          <div class="mono" style="margin-top:8px">
-factoring: ${money(r.factoring)}
-tax:       ${money(r.tax)}
-plates:    ${money(r.plates)}
-ifta:      ${money(r.ifta)}
-maint:     ${money(r.maint)}
-hwy:       ${money(r.hwy)}
-tires:     ${money(r.tires)}
-usdot:     ${money(r.usdot)}
+  const historyHtml = trips.length
+    ? trips.map(t => {
+        const c = calcTripNet(s, t);
+        const otraf = num(t.hoursAway) > 0 ? c.net / num(t.hoursAway) : 0;
+        return `
+          <div style="padding:10px;border:1px solid #22305e;border-radius:12px;margin-top:10px;background:#0c1230">
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <b>${esc(t.truck)}</b>
+                <div class="muted">${new Date(t.ts).toLocaleString()}</div>
+                <div class="muted">${esc(t.notes || "")}</div>
+              </div>
+              <div style="text-align:right">
+                <div><b>Net:</b> ${money(c.net)}</div>
+                <div class="muted">Miles ${c.miles.toFixed(0)} • Gross ${money(c.gross)}</div>
+                <div class="muted">OTRAFF ${num(t.hoursAway)>0 ? money(otraf)+"/hr" : "—"}</div>
+              </div>
+            </div>
+            <div class="muted" style="margin-top:6px">
+              Deadhead ${num(t.deadhead).toFixed(0)} • Loaded ${num(t.loaded).toFixed(0)} • Gallons ${num(t.gallons).toFixed(2)} • Tolls/Misc ${money(num(t.misc))}
+            </div>
           </div>
-        </details>
-      </div>
-    `;
+        `;
+      }).join("")
+    : `<div class="muted" style="margin-top:10px">No saved loads yet.</div>`;
 
-    out.innerHTML = `
-      <div class="kpi"><span><b>Saved-load O.T.R.A.F.F</b> (net ÷ hours away)</span><b>${otraf>0?money(otraf)+"/hr":"—"}</b></div>
-      ${block("OTR (Monthly)", otrM)}
-      ${block("Local (Monthly)", locM)}
-      ${block("OTR (Yearly)", otrY)}
-      ${block("Local (Yearly)", locY)}
-    `;
+  return `
+    <div class="card">
+      <h3 style="margin:0 0 6px">Trip Entry Snapshot (Current Fields)</h3>
 
-    // also refresh broker text if brokers tab exists
-    renderBrokerEmail();
-  }
+      <div class="kpi"><b>Truck #</b><div>${esc(current.truck || "—")}</div></div>
+      <div class="kpi"><b>Deadhead miles</b><div>${current.deadhead.toFixed(0)}</div></div>
+      <div class="kpi"><b>Loaded miles</b><div>${current.loaded.toFixed(0)}</div></div>
+      <div class="kpi"><b>Total miles</b><div>${milesCur.toFixed(0)}</div></div>
 
-  function getBlueprintScenario(scn){
-    const s=getSettings();
-    if(scn==="OTR_MONTH") return {label:"OTR (Monthly)", r:solveGrossRequired(s, s.miles.otrMonth, "month")};
-    if(scn==="LOCAL_MONTH") return {label:"Local (Monthly)", r:solveGrossRequired(s, s.miles.localMonth, "month")};
-    if(scn==="OTR_YEAR") return {label:"OTR (Yearly)", r:solveGrossRequired(s, s.miles.otrYear, "year")};
-    return {label:"Local (Yearly)", r:solveGrossRequired(s, s.miles.localYear, "year")};
-  }
+      <div class="kpi"><b>Gross revenue</b><div>${money(current.gross)}</div></div>
+      <div class="kpi"><b>Gallons used</b><div>${current.gallons ? current.gallons.toFixed(2) : "—"}</div></div>
+      <div class="kpi"><b>Tolls/misc</b><div>${money(current.misc)}</div></div>
+      <div class="kpi"><b>Hours away</b><div>${current.hoursAway ? current.hoursAway.toFixed(2) : "—"}</div></div>
 
-  // ---------- BROKERS ----------
-  function renderBrokerEmail(){
-    const ta = $("brokerText");
-    const sel = $("brokerScenario");
-    if(!ta || !sel) return;
+      <div class="kpi"><b>Auto MPG (current)</b><div>${mpgCur>0 ? mpgCur.toFixed(2) : "—"}</div></div>
+      <div class="kpi"><b>Net revenue (current)</b><div>${money(calcCur.net)}</div></div>
+      <div class="kpi"><b>O.T.R.A.F.F (current)</b><div>${current.hoursAway>0 ? money(otrafCur)+"/hr" : "—"}</div></div>
 
-    const {label, r} = getBlueprintScenario(sel.value);
-    const rpm = r.rpm;
+      <div class="muted" style="margin-top:8px"><b>Notes:</b> ${esc(current.notes || "—")}</div>
+    </div>
 
-    const s=getSettings();
-    const notes = [
-      `Fuel: $${Number(s.fuelPrice||0).toFixed(3)}/gal • MPG: ${Number(s.truckMpg||0).toFixed(2)}`,
-      `This quote reflects my minimum sustainable operating rate for the lane.`,
-      `Please advise if you can meet or beat ${money(rpm)}/mi all-in (linehaul + FSC).`
-    ].join("\n");
+    <div class="card">
+      <h3 style="margin:0 0 6px">Load History (All Saved Loads)</h3>
+      ${historyHtml}
+    </div>
+  `;
+}
 
-    const text =
-`Subject: Rate Request / Quote
+function renderInvoicePreview(){
+  $("invoiceOut").innerHTML = buildTripsHtmlForInvoice();
+}
 
-Hello,
+function printInvoicePreview(){
+  renderInvoicePreview();
+  const content = $("invoiceOut").innerHTML;
 
-I’m available for this lane. Based on my operating costs, my minimum sustainable rate is:
-
-• Scenario: ${label}
-• Minimum all-in rate: ${money(rpm)}/mile
-• Minimum gross required (${r.period}): ${money(r.gross)}
-
-${notes}
-
-Thank you,
-[Your Name]
-[MC/DOT]
-[Phone]`;
-
-    ta.value = text;
-  }
-
-  // ---------- TRIPS SAVE / CLEAR / EXPORT ----------
-  function saveTrip(){
-    const t = {
-      id: makeId(),
-      ts: Date.now(),
-      truck: ($("trip_truck")?.value||"").trim() || "Truck",
-      deadhead: num($("trip_deadhead")?.value),
-      loaded: num($("trip_loaded")?.value),
-      gross: num($("trip_gross")?.value),
-      gallons: num($("trip_gallons")?.value),
-      misc: num($("trip_misc")?.value),
-      hoursAway: num($("trip_hoursAway")?.value),
-      notes: ($("trip_notes")?.value||"").trim()
-    };
-    const trips = getTrips();
-    trips.unshift(t);
-    saveTrips(trips);
-    refreshAll();
-  }
-
-  function clearTrips(){
-    const ok = confirm("Clear ALL saved loads? This cannot be undone.");
-    if(!ok) return;
-    saveTrips([]);
-    refreshAll();
-  }
-
-  async function exportTripsJson(){
-    const txt = JSON.stringify(getTrips(), null, 2);
-    const ok = await copyText(txt);
-    alert(ok ? "Trips JSON copied to clipboard." : "Could not copy. (Your browser is being difficult.)");
-  }
-
-  // ---------- INVOICES ----------
-  function buildTripsHtmlForInvoice(){
-    const s = getSettings();
-    const trips = getTrips();
-
-    const current = {
-      truck: ($("trip_truck")?.value||"").trim() || "",
-      deadhead: num($("trip_deadhead")?.value),
-      loaded: num($("trip_loaded")?.value),
-      gross: num($("trip_gross")?.value),
-      gallons: num($("trip_gallons")?.value),
-      misc: num($("trip_misc")?.value),
-      hoursAway: num($("trip_hoursAway")?.value),
-      notes: ($("trip_notes")?.value||"").trim() || ""
-    };
-
-    const milesCur = current.deadhead + current.loaded;
-    const mpgCur = current.gallons>0 ? (milesCur/current.gallons) : 0;
-    const calcCur = calcTripNet(s, current);
-    const otrafCur = current.hoursAway>0 ? (calcCur.net/current.hoursAway) : 0;
-
-    // Summary of saved loads
-    let sumMiles=0, sumGross=0, sumNet=0, sumHours=0;
-    for(const t of trips){
-      const c = calcTripNet(s,t);
-      sumMiles += c.miles;
-      sumGross += c.gross;
-      sumNet += c.net;
-      sumHours += num(t.hoursAway);
-    }
-    const otrafAll = sumHours>0 ? (sumNet/sumHours) : 0;
-
-    const tableRows = trips.slice(0,30).map(t=>{
-      const c = calcTripNet(s,t);
-      const otr = num(t.hoursAway)>0 ? (c.net/num(t.hoursAway)) : 0;
-      return `
-        <tr>
-          <td>${esc(new Date(t.ts).toLocaleDateString())}</td>
-          <td>${esc(t.truck||"")}</td>
-          <td style="text-align:right">${c.miles.toFixed(0)}</td>
-          <td style="text-align:right">${money(c.gross)}</td>
-          <td style="text-align:right">${money(c.net)}</td>
-          <td style="text-align:right">${num(t.hoursAway)>0?money(otr)+"/hr":"—"}</td>
-          <td>${esc(t.notes||"")}</td>
-        </tr>
-      `;
-    }).join("");
-
-    return `
-      <div class="card">
-        <h3 style="margin:0 0 8px">Current Load (from Trip Entry)</h3>
-        <div class="kpi"><b>Truck</b><div>${esc(current.truck||"—")}</div></div>
-        <div class="kpi"><b>Miles (deadhead + loaded)</b><div>${milesCur>0?milesCur.toFixed(0):"—"}</div></div>
-        <div class="kpi"><b>Gross</b><div>${money(current.gross)}</div></div>
-        <div class="kpi"><b>Fuel</b><div>${money(calcCur.fuel)}</div></div>
-        <div class="kpi"><b>Misc/Tolls</b><div>${money(calcCur.misc)}</div></div>
-        <div class="kpi"><b>Net</b><div>${money(calcCur.net)}</div></div>
-        <div class="kpi"><b>MPG</b><div>${mpgCur>0?mpgCur.toFixed(2):"—"}</div></div>
-        <div class="kpi"><b>O.T.R.A.F.F</b><div>${current.hoursAway>0?money(otrafCur)+"/hr":"—"}</div></div>
-        <div class="muted" style="margin-top:8px">${esc(current.notes||"")}</div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <h3 style="margin:0 0 8px">Saved Loads Summary</h3>
-        <div class="kpi"><b>Loads saved</b><div>${trips.length}</div></div>
-        <div class="kpi"><b>Total miles</b><div>${sumMiles.toFixed(0)}</div></div>
-        <div class="kpi"><b>Total gross</b><div>${money(sumGross)}</div></div>
-        <div class="kpi"><b>Total net</b><div>${money(sumNet)}</div></div>
-        <div class="kpi"><b>Average O.T.R.A.F.F</b><div>${sumHours>0?money(otrafAll)+"/hr":"—"}</div></div>
-
-        <div style="overflow:auto;margin-top:10px">
-          <table style="width:100%;border-collapse:collapse;font-size:12px">
-            <thead>
-              <tr style="text-align:left;border-bottom:1px solid #22305e">
-                <th style="padding:8px">Date</th>
-                <th style="padding:8px">Truck</th>
-                <th style="padding:8px;text-align:right">Miles</th>
-                <th style="padding:8px;text-align:right">Gross</th>
-                <th style="padding:8px;text-align:right">Net</th>
-                <th style="padding:8px;text-align:right">OTRAFF</th>
-                <th style="padding:8px">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${tableRows || `<tr><td colspan="7" class="muted" style="padding:10px">No saved loads yet.</td></tr>`}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-
-  function previewInvoice(){
-    const out = $("invoiceOut");
-    if(!out) return;
-    out.innerHTML = buildTripsHtmlForInvoice();
-  }
-
-  function printInvoice(){
-    const html = buildTripsHtmlForInvoice();
-    const w = window.open("", "_blank");
-    if(!w){ alert("Popup blocked. Allow popups to print."); return; }
-
-    w.document.open();
-    w.document.write(`
+  const w = window.open("", "_blank");
+  w.document.open();
+  w.document.write(`
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Invoice Print</title>
+<title>Invoice Preview</title>
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:20px;color:#111}
-  .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px}
-  .kpi{display:flex;justify-content:space-between;gap:10px;padding:8px;border:1px solid #eee;border-radius:10px;margin-top:8px}
-  .muted{color:#666;font-size:12px}
-  table{width:100%;border-collapse:collapse}
-  th,td{border-bottom:1px solid #eee;padding:8px;vertical-align:top}
-  th{background:#fafafa}
-  @media print{ button{display:none} }
+  *, *::before, *::after { box-sizing:border-box; }
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#fff;color:#111;padding:18px}
+  h2,h3{margin:0 0 10px}
+  .muted{color:#555;font-size:13px}
+  .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-top:12px}
+  .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #eee;border-radius:10px;background:#fafafa;margin-top:8px}
+  @media print{
+    body{padding:0}
+    .card{break-inside:avoid}
+  }
 </style>
 </head>
 <body>
-  <button onclick="window.print()" style="padding:10px 12px;border-radius:10px;border:1px solid #ccc;background:#fff;cursor:pointer">Print</button>
-  <div style="height:10px"></div>
-  ${html}
+  <h2>Trucking Made Simple — Invoice Preview</h2>
+  <div class="muted">Generated: ${new Date().toLocaleString()}</div>
+  ${content}
+  <script>window.onload=()=>window.print();<\/script>
 </body>
 </html>
-    `);
-    w.document.close();
-  }
+  `);
+  w.document.close();
+}
+/* ===================== END INVOICES ===================== */
 
-  // ---------- PROFILES ----------
-  function refreshProfilePick(kind){
-    const list = kind==="shipper" ? getShippers() : getConsignees();
-    const pick = $(kind==="shipper" ? "shipperPick" : "consigneePick");
-    const q = ($(kind==="shipper" ? "shipperSearch" : "consigneeSearch")?.value || "").toLowerCase().trim();
-    if(!pick) return;
+function brokerEmailText(){
+  const s=getSettings();
+  const sc=$("brokerScenario").value;
+  let period="month", miles=s.miles.otrMonth, label="OTR Monthly";
+  if(sc==="LOCAL_MONTH"){period="month"; miles=s.miles.localMonth; label="Local Monthly";}
+  if(sc==="OTR_YEAR"){period="year"; miles=s.miles.otrYear; label="OTR Yearly";}
+  if(sc==="LOCAL_YEAR"){period="year"; miles=s.miles.localYear; label="Local Yearly";}
+  const r=solveGrossRequired(s,miles,period);
+  const mode=s.fleetMode?"FLEET MODE (includes payroll)":"OWNER-OP MODE";
+  return `Minimum All-In Rate Basis (${mode})
 
-    const filtered = list.filter(p=>{
-      if(!q) return true;
-      const hay = `${p.name||""} ${p.city||""} ${p.state||""} ${p.phone||""} ${p.email||""} ${p.address||""} ${p.zip||""} ${p.notes||""}`.toLowerCase();
-      return hay.includes(q);
-    });
+Scenario: ${label}
+Miles Assumed: ${miles.toLocaleString()}
+Minimum Sustainable Rate Needed: ${money(r.rpm)} per mile
 
-    pick.innerHTML = filtered.slice(0,200).map(p=>{
-      const label = `${p.name||"—"} • ${p.city||""} ${p.state||""}`.trim();
-      return `<option value="${esc(p.id)}">${esc(label)}</option>`;
-    }).join("");
-  }
+Assumptions:
+- Fuel: $${s.fuelPrice.toFixed(3)}/gal
+- MPG: ${s.truckMpg.toFixed(2)}
+- Factoring: ${(s.pct.factoring*100).toFixed(2)}% of gross
+- Tax reserve: ${(s.pct.tax*100).toFixed(2)}% of gross (no cap)
+- Annual capped reserves (monthly uses cap/12 unless “Continue after cap” ON)
 
-  function getProfileFields(kind){
-    const prefix = kind==="shipper" ? "shipper_" : "consignee_";
-    return {
-      name: ($(prefix+"name")?.value||"").trim(),
-      phone: ($(prefix+"phone")?.value||"").trim(),
-      city: ($(prefix+"city")?.value||"").trim(),
-      state: ($(prefix+"state")?.value||"").trim(),
-      address: ($(prefix+"address")?.value||"").trim(),
-      zip: ($(prefix+"zip")?.value||"").trim(),
-      email: ($(prefix+"email")?.value||"").trim(),
-      notes: ($(prefix+"notes")?.value||"").trim(),
-    };
-  }
+Included: household + business fixed costs, fuel, factoring, tax reserve, and reserve funding.
+`;
+}
+function refreshBrokers(){ $("brokerText").value=brokerEmailText(); }
+$("brokerScenario").addEventListener("change",refreshBrokers);
+$("btnCopyBroker").addEventListener("click",()=>{ navigator.clipboard?.writeText($("brokerText").value); alert("Copied. Paste into email/text."); });
 
-  function setProfileFields(kind, p){
-    const prefix = kind==="shipper" ? "shipper_" : "consignee_";
-    $(prefix+"name").value = p?.name||"";
-    $(prefix+"phone").value = p?.phone||"";
-    $(prefix+"city").value = p?.city||"";
-    $(prefix+"state").value = p?.state||"";
-    $(prefix+"address").value = p?.address||"";
-    $(prefix+"zip").value = p?.zip||"";
-    $(prefix+"email").value = p?.email||"";
-    $(prefix+"notes").value = p?.notes||"";
-  }
+function renderBlueprint(){
+  const s=getSettings();
+  const trips=getTrips();
+  const {hh,biz}=monthlyTotals(s);
+  const mode=s.fleetMode?"FLEET MODE":"OWNER-OP MODE";
 
-  function pickProfile(kind){
-    const pick = $(kind==="shipper" ? "shipperPick" : "consigneePick");
-    const id = pick?.value || "";
-    const list = kind==="shipper" ? getShippers() : getConsignees();
-    const p = list.find(x=>x.id===id);
-    setProfileFields(kind, p || null);
-  }
+  const scenarios=[
+    ["OTR Monthly","month",s.miles.otrMonth],
+    ["Local Monthly","month",s.miles.localMonth],
+    ["OTR Yearly","year",s.miles.otrYear],
+    ["Local Yearly","year",s.miles.localYear],
+  ];
 
-  function saveProfile(kind){
-    const pick = $(kind==="shipper" ? "shipperPick" : "consigneePick");
-    const id = pick?.value || "";
-    const list = kind==="shipper" ? getShippers() : getConsignees();
+  const scenHtml = scenarios.map(([name,period,miles])=>{
+    const r=solveGrossRequired(s,miles,period);
+    return `<div class="card">
+      <h3 style="margin:0 0 6px">${name}</h3>
+      <div class="kpi"><b>Minimum $/mile</b><div>${money(r.rpm)}/mile</div></div>
+      <div class="kpi"><b>Gross required</b><div>${money(r.gross)}</div></div>
+      <div class="kpi"><b>Fixed</b><div>${money(r.fixed)}</div></div>
+      <div class="kpi"><b>Fuel</b><div>${money(r.fuel)}</div></div>
+      <div class="muted mono" style="margin-top:8px">factoring ${money(r.factoring)}
+tax ${money(r.tax)}
+plates ${money(r.plates)} | ifta ${money(r.ifta)} | maint ${money(r.maint)}
+hwy ${money(r.hwy)} | tires ${money(r.tires)} | usdot ${money(r.usdot)}</div>
+    </div>`;
+  }).join("");
 
-    const fields = getProfileFields(kind);
-    if(!fields.name){
-      alert("Name is required.");
-      return;
-    }
+  const hoursAwayYTD = trips.reduce((a,t)=>a+num(t.hoursAway),0);
+  const netYTD = trips.reduce((a,t)=>a+calcTripNet(s,t).net,0);
+  const otrafYTD = hoursAwayYTD>0 ? netYTD/hoursAwayYTD : 0;
 
-    const existingIndex = id ? list.findIndex(x=>x.id===id) : -1;
-    if(existingIndex>=0){
-      list[existingIndex] = {...list[existingIndex], ...fields};
-    }else{
-      list.unshift({id: makeId(), ...fields});
-    }
+  const otrLoads = s.avgMilesLoadOtr>0 ? s.miles.otrMonth/s.avgMilesLoadOtr : 0;
+  const localLoads = s.avgMilesLoadLocal>0 ? s.miles.localMonth/s.avgMilesLoadLocal : 0;
+  const otrHours = otrLoads*s.hoursPerLoad;
+  const localHours = localLoads*s.hoursPerLoad;
 
-    if(kind==="shipper") saveShippers(list); else saveConsignees(list);
-    refreshProfilePick(kind);
-  }
+  $("blueprintOut").innerHTML = `
+    <div class="kpi"><b>Mode</b><div>${mode}</div></div>
+    <div class="kpi"><b>Household monthly</b><div>${money(hh)}</div></div>
+    <div class="kpi"><b>Business monthly</b><div>${money(biz)}</div></div>
+    <div class="kpi"><b>O.T.R.A.F.F (YTD)</b><div>${hoursAwayYTD>0?money(otrafYTD)+"/hr":"Enter trips to calculate"}</div></div>
+    <div class="kpi"><b>YTD net revenue</b><div>${money(netYTD)}</div></div>
+    <div class="kpi"><b>Monthly hours away model</b><div>OTR ${otrHours.toFixed(1)} hrs • Local ${localHours.toFixed(1)} hrs</div></div>
+    <div class="grid cols2" style="margin-top:12px">${scenHtml}</div>
+  `;
+}
 
-  function deleteProfile(kind){
-    const pick = $(kind==="shipper" ? "shipperPick" : "consigneePick");
-    const id = pick?.value || "";
-    if(!id){ alert("Pick a profile first."); return; }
-    const ok = confirm("Delete this profile?");
-    if(!ok) return;
+function loadProfiles(key){ return loadJSON(key, []); }
+function saveProfiles(key, list){ saveJSON(key, list); }
+function filterProfiles(list,q){
+  q=(q||"").toLowerCase().trim();
+  if(!q) return list.slice(0,50);
+  return list.filter(p=>{
+    const hay=`${p.name||""} ${p.city||""} ${p.state||""} ${p.zip||""} ${p.phone||""} ${p.email||""} ${p.address||""} ${p.notes||""}`.toLowerCase();
+    return hay.includes(q);
+  }).slice(0,50);
+}
+function renderPick(sel, items){
+  sel.innerHTML="";
+  items.forEach(p=>{
+    const o=document.createElement("option");
+    o.value=p.id;
+    o.textContent=`${p.name||"(no name)"} — ${p.city||""} ${p.state||""} ${p.phone||""}`.trim();
+    sel.appendChild(o);
+  });
+}
+function uuid(){ return "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16); }
+function upsertProfile(key, profile){
+  let list=loadProfiles(key);
+  if(!profile.id) profile.id=uuid();
+  profile.updatedAt=new Date().toISOString();
+  const idx=list.findIndex(p=>p.id===profile.id || ((p.name||"").toLowerCase()===(profile.name||"").toLowerCase() && (p.zip||"")===(profile.zip||"")));
+  if(idx>=0) list[idx]={...list[idx],...profile};
+  else list.unshift(profile);
+  saveProfiles(key,list);
+  return profile.id;
+}
+function deleteProfile(key,id){ saveJSON(key, loadProfiles(key).filter(p=>p.id!==id)); }
+function clearProfiles(key){ saveJSON(key, []); }
+function fill(prefix,p){
+  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>$(prefix+"_"+f).value = p?.[f]||"");
+}
+function read(prefix){
+  const o={};
+  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>o[f]=$(prefix+"_"+f).value.trim());
+  return o;
+}
 
-    const list = kind==="shipper" ? getShippers() : getConsignees();
-    const next = list.filter(x=>x.id!==id);
-    if(kind==="shipper") saveShippers(next); else saveConsignees(next);
+let selectedShipper=null, selectedConsignee=null;
 
-    refreshProfilePick(kind);
-    setProfileFields(kind, null);
-  }
+function refreshShippers(){
+  const list=loadProfiles(KEY_SHIPPERS);
+  renderPick($("shipperPick"), filterProfiles(list, $("shipperSearch").value));
+}
+function refreshConsignees(){
+  const list=loadProfiles(KEY_CONSIGNEES);
+  renderPick($("consigneePick"), filterProfiles(list, $("consigneeSearch").value));
+}
 
-  function clearProfiles(kind){
-    const ok = confirm(`Clear ALL ${kind==="shipper"?"Shippers":"Consignees"}? This cannot be undone.`);
-    if(!ok) return;
-    if(kind==="shipper") saveShippers([]); else saveConsignees([]);
-    refreshProfilePick(kind);
-    setProfileFields(kind, null);
-  }
+$("shipperSearch").addEventListener("input",refreshShippers);
+$("consigneeSearch").addEventListener("input",refreshConsignees);
 
-  // ---------- TABS ----------
-  function showTab(tab){
-    document.querySelectorAll(".tab").forEach(s=>s.style.display="none");
-    const el = document.getElementById("tab-"+tab);
-    if(el) el.style.display="block";
+$("shipperPick").addEventListener("change",()=>{
+  selectedShipper=$("shipperPick").value;
+  const p=loadProfiles(KEY_SHIPPERS).find(x=>x.id===selectedShipper);
+  fill("shipper",p);
+});
+$("consigneePick").addEventListener("change",()=>{
+  selectedConsignee=$("consigneePick").value;
+  const p=loadProfiles(KEY_CONSIGNEES).find(x=>x.id===selectedConsignee);
+  fill("consignee",p);
+});
 
-    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
-    const btn = document.querySelector(`.tabbtn[data-tab="${tab}"]`);
-    if(btn) btn.classList.add("active");
+$("btnSaveShipper").addEventListener("click",()=>{
+  const data=read("shipper");
+  if(!data.name){alert("Shipper name required.");return;}
+  selectedShipper=upsertProfile(KEY_SHIPPERS,{id:selectedShipper,...data});
+  refreshShippers(); alert("Saved.");
+});
+$("btnDeleteShipper").addEventListener("click",()=>{
+  if(!selectedShipper){alert("Select a shipper first.");return;}
+  deleteProfile(KEY_SHIPPERS, selectedShipper); selectedShipper=null; fill("shipper",null); refreshShippers();
+});
+$("btnClearShippers").addEventListener("click",()=>{
+  if(confirm("Clear all shipper profiles on this phone?")){ clearProfiles(KEY_SHIPPERS); selectedShipper=null; fill("shipper",null); refreshShippers(); }
+});
 
-    // keep outputs fresh
-    if(tab==="blueprint") renderBlueprint();
-    if(tab==="brokers") renderBrokerEmail();
-    if(tab==="trip") { refreshTripsDropdown(); refreshTripsList(); previewTrip(); }
-  }
+$("btnSaveConsignee").addEventListener("click",()=>{
+  const data=read("consignee");
+  if(!data.name){alert("Consignee name required.");return;}
+  selectedConsignee=upsertProfile(KEY_CONSIGNEES,{id:selectedConsignee,...data});
+  refreshConsignees(); alert("Saved.");
+});
+$("btnDeleteConsignee").addEventListener("click",()=>{
+  if(!selectedConsignee){alert("Select a consignee first.");return;}
+  deleteProfile(KEY_CONSIGNEES, selectedConsignee); selectedConsignee=null; fill("consignee",null); refreshConsignees();
+});
+$("btnClearConsignees").addEventListener("click",()=>{
+  if(confirm("Clear all consignee profiles on this phone?")){ clearProfiles(KEY_CONSIGNEES); selectedConsignee=null; fill("consignee",null); refreshConsignees(); }
+});
 
-  // ---------- REFRESH EVERYTHING ----------
-  function refreshAll(){
-    previewTrip();
-    refreshTripsDropdown();
-    refreshTripsList();
-    renderBlueprint();
-    renderBrokerEmail();
-  }
+/* invoice button listeners */
+$("btnPreviewInvoice").addEventListener("click", renderInvoicePreview);
+$("btnPrintInvoice").addEventListener("click", printInvoicePreview);
 
-  // ---------- INIT ----------
-  function init(){
-    // load settings
-    const saved = loadJSON(KEY_SETTINGS, null);
-    setSettings(saved ? saved : clone(DEFAULTS));
-    persistSettings();
+function refreshAll(){
+  renderBlueprint();
+  refreshBrokers();
+  refreshTripsList();
+  refreshShippers();
+  refreshConsignees();
+  previewTrip();
+  renderInvoicePreview();
+}
 
-    // Tab buttons
-    document.querySelectorAll(".tabbtn").forEach(btn=>{
-      btn.addEventListener("click", ()=>showTab(btn.dataset.tab));
-    });
-
-    // Settings change watchers
-    const settingsIds = [
-      "fleetMode","driverWageWeekly","fuelPrice","truckMpg","hoursPerLoad","daysPerLoad",
-      "avgMilesLoadOtr","avgMilesLoadLocal",
-      "hh_house","hh_util","hh_car","hh_groc","hh_carGas","hh_gasUtil",
-      "biz_truck","biz_trailer","biz_ins","biz_phone","biz_park","biz_eld","biz_lb",
-      "pct_factoring","pct_tax","pct_plates","pct_ifta","pct_maint","pct_hwy","pct_tires","pct_usdot",
-      "cap_plates","cap_ifta","cap_maint","cap_hwy","cap_tires","cap_usdot",
-      "aftercap_plates","aftercap_ifta","aftercap_maint","aftercap_hwy","aftercap_tires","aftercap_usdot",
-      "m_otr","m_local","y_otr","y_local"
-    ];
-    settingsIds.forEach(id=>{
-      bind(id,"input",persistSettings);
-      bind(id,"change",persistSettings);
-    });
-
-    // Reset
-    bind("btnResetDefaults","click", ()=>{
-      setSettings(clone(DEFAULTS));
-      persistSettings();
-    });
-
-    // Trip entry live preview
-    ["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway"].forEach(id=>{
-      bind(id,"input",previewTrip);
-    });
-
-    // Trip buttons
-    bind("btnSaveTrip","click", saveTrip);
-    bind("btnClearTrips","click", clearTrips);
-    bind("btnExportJson","click", exportTripsJson);
-    bind("trip_search","input", refreshTripsList);
-
-    // Pick saved load
-    bind("trip_pickLoad","change", ()=>{
-      const id = $("trip_pickLoad").value;
-      if(!id) return;
-      const t = getTrips().find(x=>x.id===id);
-      if(t) fillTripEntryFromLoad(t);
-    });
-
-    // Invoice buttons
-    bind("btnPreviewInvoice","click", previewInvoice);
-    bind("btnPrintInvoice","click", printInvoice);
-
-    // Brokers
-    bind("brokerScenario","change", renderBrokerEmail);
-    bind("btnCopyBroker","click", async ()=>{
-      const txt = $("brokerText")?.value || "";
-      const ok = await copyText(txt);
-      alert(ok ? "Broker email copied." : "Could not copy. (Browser tantrum.)");
-    });
-
-    // Profiles
-    bind("shipperSearch","input", ()=>refreshProfilePick("shipper"));
-    bind("shipperPick","change", ()=>pickProfile("shipper"));
-    bind("btnSaveShipper","click", ()=>saveProfile("shipper"));
-    bind("btnDeleteShipper","click", ()=>deleteProfile("shipper"));
-    bind("btnClearShippers","click", ()=>clearProfiles("shipper"));
-
-    bind("consigneeSearch","input", ()=>refreshProfilePick("consignee"));
-    bind("consigneePick","change", ()=>pickProfile("consignee"));
-    bind("btnSaveConsignee","click", ()=>saveProfile("consignee"));
-    bind("btnDeleteConsignee","click", ()=>deleteProfile("consignee"));
-    bind("btnClearConsignees","click", ()=>clearProfiles("consignee"));
-
-    refreshProfilePick("shipper");
-    refreshProfilePick("consignee");
-
-    // default tab
-    showTab("settings");
-    refreshAll();
-  }
-
-  // Go.
-  init();
+(function init(){
+  const saved=loadJSON(KEY_SETTINGS,null);
+  setSettings(saved||structuredClone(DEFAULTS));
+  saveJSON(KEY_SETTINGS,getSettings());
+  refreshAll();
 })();
 </script>
 </body>
