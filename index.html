@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Trucking Made Simple — Blueprint (MVP)</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1020;color:#eef2ff}
+  header{position:sticky;top:0;background:#070a14;border-bottom:1px solid #22305e}
+  .wrap{max-width:1000px;margin:0 auto;padding:14px}
+  h1{font-size:18px;margin:0 0 10px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tabbtn{border:1px solid #22305e;background:#121a33;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:800}
+  .tabbtn.active{border-color:#4aa3ff}
+  .card{background:#121a33;border:1px solid #22305e;border-radius:16px;padding:12px;margin-top:12px}
+  label{display:block;font-size:12px;color:#a9b4d0;margin:10px 0 6px}
+  input,select,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #22305e;background:#0e1530;color:#eef2ff}
+  textarea{min-height:150px}
+  .grid{display:grid;gap:12px}
+  @media(min-width:900px){.grid.cols2{grid-template-columns:1fr 1fr}}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{border:1px solid #22305e;background:#1a2550;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:900}
+  .btn.primary{background:#1f5bff;border-color:#2b6cff}
+  .btn.good{background:#19b56f;border-color:#1ba86a}
+  .btn.bad{background:#ff2f58;border-color:#ff2f58}
+  .muted{color:#a9b4d0;font-size:13px}
+  .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #22305e;border-radius:14px;background:#0c1230;margin-top:8px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Trucking Made Simple — Blueprint (Owner‑Operator Edition)</h1>
+  <div class="tabs">
+    <button class="tabbtn active" data-tab="settings">Settings</button>
+    <button class="tabbtn" data-tab="blueprint">Blueprint</button>
+    <button class="tabbtn" data-tab="brokers">Brokers</button>
+    <button class="tabbtn" data-tab="trip">Trip Entry</button>
+    <button class="tabbtn" data-tab="profiles">Shipper/Consignee</button>
+  </div>
+  <div class="muted" style="margin-top:8px">
+    No‑Touch Rule: Only <b>Settings</b> is editable. Blueprint/Brokers are read‑only outputs. Data saves on this phone (localStorage).
+  </div>
+</div></header>
+
+<main class="wrap">
+<section id="tab-settings" class="tab">
+  <div class="grid cols2">
+    <div class="card">
+      <h2 style="margin:0 0 8px">Mode</h2>
+      <label>Fleet Mode (include payroll)</label>
+      <select id="fleetMode">
+        <option value="false">OFF (Owner‑Operator)</option>
+        <option value="true">ON (Fleet Mode)</option>
+      </select>
+      <label>Company driver wage per week (only used when Fleet Mode ON)</label>
+      <input id="driverWageWeekly" type="number" step="0.01"/>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">Fuel + Time Away</h2>
+      <div class="row">
+        <div><label>Fuel $/gal</label><input id="fuelPrice" type="number" step="0.001"/></div>
+        <div><label>Truck MPG</label><input id="truckMpg" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Hours away per load</label><input id="hoursPerLoad" type="number" step="0.25"/></div>
+        <div><label>Days away per load (auto‑sync)</label><input id="daysPerLoad" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Avg miles/load (OTR)</label><input id="avgMilesLoadOtr" type="number" step="1"/></div>
+        <div><label>Avg miles/load (Local)</label><input id="avgMilesLoadLocal" type="number" step="1"/></div>
+      </div>
+      <div class="muted" style="margin-top:8px"><b>O.T.R.A.F.F</b> locked: <b>net revenue ÷ hours away from family</b>.</div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">Household (Monthly)</h2>
+      <div class="row">
+        <div><label>House payment</label><input id="hh_house" type="number" step="0.01"/></div>
+        <div><label>Utilities</label><input id="hh_util" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Car payment</label><input id="hh_car" type="number" step="0.01"/></div>
+        <div><label>Groceries</label><input id="hh_groc" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Car gas (monthly)</label><input id="hh_carGas" type="number" step="0.01"/></div>
+        <div><label>Household gas utilities</label><input id="hh_gasUtil" type="number" step="0.01"/></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">Business (Monthly)</h2>
+      <div class="row">
+        <div><label>Truck payment</label><input id="biz_truck" type="number" step="0.01"/></div>
+        <div><label>Trailer payment</label><input id="biz_trailer" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Insurance</label><input id="biz_ins" type="number" step="0.01"/></div>
+        <div><label>Business phone</label><input id="biz_phone" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Parking</label><input id="biz_park" type="number" step="0.01"/></div>
+        <div><label>ELD</label><input id="biz_eld" type="number" step="0.01"/></div>
+      </div>
+      <label>Load board</label><input id="biz_lb" type="number" step="0.01"/>
+      <div class="muted" style="margin-top:8px">Payroll is handled in Mode (Fleet Mode).</div>
+    </div>
+
+    <div class="card" style="grid-column:1/-1">
+      <h2 style="margin:0 0 8px">Percent Rules (of Gross) + Annual Caps</h2>
+      <div class="muted">Caps are annual; monthly scenario uses cap/12. “Continue after cap” overrides cap.</div>
+
+      <div class="row">
+        <div><label>Factoring % (no cap)</label><input id="pct_factoring" type="number" step="0.001"/></div>
+        <div><label>Tax reserve % (no cap)</label><input id="pct_tax" type="number" step="0.001"/></div>
+      </div>
+
+      <div class="grid cols2">
+        <div>
+          <label>Plates %</label><input id="pct_plates" type="number" step="0.001"/>
+          <label>Plates cap (annual $)</label><input id="cap_plates" type="number" step="0.01"/>
+          <label>Continue after cap?</label><select id="aftercap_plates"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+        <div>
+          <label>IFTA %</label><input id="pct_ifta" type="number" step="0.001"/>
+          <label>IFTA cap (annual $)</label><input id="cap_ifta" type="number" step="0.01"/>
+          <label>Continue after cap?</label><select id="aftercap_ifta"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+        <div>
+          <label>Maintenance %</label><input id="pct_maint" type="number" step="0.001"/>
+          <label>Maintenance cap (annual $)</label><input id="cap_maint" type="number" step="0.01"/>
+          <label>Continue after cap?</label><select id="aftercap_maint"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+        <div>
+          <label>Heavy highway %</label><input id="pct_hwy" type="number" step="0.001"/>
+          <label>Heavy highway cap (annual $)</label><input id="cap_hwy" type="number" step="0.01"/>
+          <label>Continue after cap?</label><select id="aftercap_hwy"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+        <div>
+          <label>Tires %</label><input id="pct_tires" type="number" step="0.001"/>
+          <label>Tires cap (annual $)</label><input id="cap_tires" type="number" step="0.01"/>
+          <label>Continue after cap?</label><select id="aftercap_tires"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+        <div>
+          <label>USDOT %</label><input id="pct_usdot" type="number" step="0.001"/>
+          <label>USDOT cap (annual $)</label><input id="cap_usdot" type="number" step="0.01"/>
+          <label>Continue after cap?</label><select id="aftercap_usdot"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div><label>OTR miles per month</label><input id="m_otr" type="number" step="1"/></div>
+        <div><label>Local miles per month</label><input id="m_local" type="number" step="1"/></div>
+      </div>
+      <div class="row">
+        <div><label>OTR miles per year</label><input id="y_otr" type="number" step="1"/></div>
+        <div><label>Local miles per year</label><input id="y_local" type="number" step="1"/></div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn primary" id="btnResetDefaults">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-blueprint" class="tab" style="display:none">
+  <div class="card">
+    <h2 style="margin:0 0 6px">Blueprint (Read‑Only)</h2>
+    <div class="muted">Minimum sustainable rate per mile for each scenario + O.T.R.A.F.F from saved loads.</div>
+    <div id="blueprintOut"></div>
+  </div>
+</section>
+
+<section id="tab-brokers" class="tab" style="display:none">
+  <div class="card">
+    <h2 style="margin:0 0 6px">Brokers (Copy/Paste Email)</h2>
+    <div class="row">
+      <div>
+        <label>Scenario</label>
+        <select id="brokerScenario">
+          <option value="OTR_MONTH">OTR (Monthly)</option>
+          <option value="LOCAL_MONTH">Local (Monthly)</option>
+          <option value="OTR_YEAR">OTR (Yearly)</option>
+          <option value="LOCAL_YEAR">Local (Yearly)</option>
+        </select>
+      </div>
+      <div style="align-self:end">
+        <button class="btn good" id="btnCopyBroker">Copy Email Text</button>
+      </div>
+    </div>
+    <label>Email block</label>
+    <textarea id="brokerText" readonly></textarea>
+    <div class="muted">This app formats the email. You copy/paste into Gmail/SMS.</div>
+  </div>
+</section>
+
+<section id="tab-trip" class="tab" style="display:none">
+  <div class="grid cols2">
+    <div class="card">
+      <h2 style="margin:0 0 6px">Trip Entry (per load)</h2>
+      <label>Truck #</label><input id="trip_truck" placeholder="Truck 1"/>
+      <div class="row">
+        <div><label>Deadhead miles</label><input id="trip_deadhead" type="number" step="1"/></div>
+        <div><label>Loaded miles</label><input id="trip_loaded" type="number" step="1"/></div>
+      </div>
+      <div class="row">
+        <div><label>Gross revenue ($)</label><input id="trip_gross" type="number" step="0.01"/></div>
+        <div><label>Gallons used</label><input id="trip_gallons" type="number" step="0.01"/></div>
+      </div>
+      <div class="row">
+        <div><label>Tolls/misc ($)</label><input id="trip_misc" type="number" step="0.01"/></div>
+        <div><label>Hours away (this load)</label><input id="trip_hoursAway" type="number" step="0.25"/></div>
+      </div>
+      <label>Notes</label><input id="trip_notes" placeholder="lane, broker, etc."/>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn primary" id="btnSaveTrip">Save Load</button>
+        <button class="btn bad" id="btnClearTrips">Clear All Loads</button>
+      </div>
+      <div class="kpi"><b>Auto MPG (this load)</b><div id="trip_mpg">—</div></div>
+      <div class="kpi"><b>Net revenue (this load)</b><div id="trip_net">—</div></div>
+      <div class="kpi"><b>O.T.R.A.F.F (this load)</b><div id="trip_otraff">—</div></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 6px">Load History</h2>
+      <label>Search</label><input id="trip_search" placeholder="search notes/truck"/>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" id="btnExportJson">Copy Trips JSON</button>
+      </div>
+      <div id="trip_list" style="margin-top:10px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-profiles" class="tab" style="display:none">
+  <div class="grid cols2">
+    <div class="card">
+      <h2 style="margin:0 0 6px">Shipper Profiles</h2>
+      <label>Search as you type</label><input id="shipperSearch" placeholder="name, city, phone..."/>
+      <select id="shipperPick" size="6" style="margin-top:10px"></select>
+      <div class="row">
+        <div><label>Name</label><input id="shipper_name"/></div>
+        <div><label>Phone</label><input id="shipper_phone"/></div>
+      </div>
+      <div class="row">
+        <div><label>City</label><input id="shipper_city"/></div>
+        <div><label>State</label><input id="shipper_state"/></div>
+      </div>
+      <label>Address</label><input id="shipper_address"/>
+      <div class="row">
+        <div><label>Zip</label><input id="shipper_zip"/></div>
+        <div><label>Email</label><input id="shipper_email"/></div>
+      </div>
+      <label>Notes</label><input id="shipper_notes"/>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn good" id="btnSaveShipper">Save/Update</button>
+        <button class="btn bad" id="btnDeleteShipper">Delete</button>
+        <button class="btn" id="btnClearShippers">Clear All</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 6px">Consignee Profiles + Calendar</h2>
+      <label>Pickup/Delivery date</label><input id="datePick" type="date"/>
+      <label>Search as you type</label><input id="consigneeSearch" placeholder="name, city, phone..."/>
+      <select id="consigneePick" size="6" style="margin-top:10px"></select>
+      <div class="row">
+        <div><label>Name</label><input id="consignee_name"/></div>
+        <div><label>Phone</label><input id="consignee_phone"/></div>
+      </div>
+      <div class="row">
+        <div><label>City</label><input id="consignee_city"/></div>
+        <div><label>State</label><input id="consignee_state"/></div>
+      </div>
+      <label>Address</label><input id="consignee_address"/>
+      <div class="row">
+        <div><label>Zip</label><input id="consignee_zip"/></div>
+        <div><label>Email</label><input id="consignee_email"/></div>
+      </div>
+      <label>Notes</label><input id="consignee_notes"/>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn good" id="btnSaveConsignee">Save/Update</button>
+        <button class="btn bad" id="btnDeleteConsignee">Delete</button>
+        <button class="btn" id="btnClearConsignees">Clear All</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const KEY_SETTINGS="tms_settings_v1";
+const KEY_TRIPS="tms_trips_v1";
+const KEY_SHIPPERS="tms_shippers_v1";
+const KEY_CONSIGNEES="tms_consignee_v1";
+
+const DEFAULTS={
+  fleetMode:false, driverWageWeekly:1000,
+  fuelPrice:3.659, truckMpg:4.60,
+  hoursPerLoad:48, daysPerLoad:2,
+  avgMilesLoadOtr:600, avgMilesLoadLocal:250,
+  household:{house:1500, util:500, car:500, groc:700, carGas:0, gasUtil:400},
+  business:{truck:1500, trailer:1100, ins:1500, phone:150, park:300, eld:25, lb:169},
+  pct:{factoring:0.02, tax:0.28, plates:0.05, ifta:0.05, maint:0.07, hwy:0.02, tires:0.05, usdot:0.02},
+  cap:{plates:2500, ifta:2500, maint:5000, hwy:550, tires:5000, usdot:150},
+  afterCap:{plates:false, ifta:false, maint:false, hwy:false, tires:false, usdot:false},
+  miles:{otrMonth:12500, localMonth:6000, otrYear:144000, localYear:72000}
+};
+
+const $=id=>document.getElementById(id);
+const num=v=>Number(v||0);
+const money=n=>Number(n||0).toLocaleString(undefined,{style:"currency",currency:"USD"});
+
+function loadJSON(key, fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch{return fallback}}
+function saveJSON(key, obj){localStorage.setItem(key, JSON.stringify(obj))}
+
+document.querySelectorAll(".tabbtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll("section.tab").forEach(s=>s.style.display="none");
+    $("tab-"+btn.dataset.tab).style.display="block";
+    refreshAll();
+  });
+});
+
+function getSettings(){
+  const s={
+    fleetMode: $("fleetMode").value==="true",
+    driverWageWeekly: num($("driverWageWeekly").value),
+    fuelPrice: num($("fuelPrice").value),
+    truckMpg: num($("truckMpg").value) || DEFAULTS.truckMpg,
+    hoursPerLoad: num($("hoursPerLoad").value),
+    daysPerLoad: num($("daysPerLoad").value),
+    avgMilesLoadOtr: num($("avgMilesLoadOtr").value),
+    avgMilesLoadLocal: num($("avgMilesLoadLocal").value),
+    household:{
+      house:num($("hh_house").value), util:num($("hh_util").value), car:num($("hh_car").value),
+      groc:num($("hh_groc").value), carGas:num($("hh_carGas").value), gasUtil:num($("hh_gasUtil").value)
+    },
+    business:{
+      truck:num($("biz_truck").value), trailer:num($("biz_trailer").value), ins:num($("biz_ins").value),
+      phone:num($("biz_phone").value), park:num($("biz_park").value), eld:num($("biz_eld").value), lb:num($("biz_lb").value)
+    },
+    pct:{
+      factoring:num($("pct_factoring").value), tax:num($("pct_tax").value),
+      plates:num($("pct_plates").value), ifta:num($("pct_ifta").value), maint:num($("pct_maint").value),
+      hwy:num($("pct_hwy").value), tires:num($("pct_tires").value), usdot:num($("pct_usdot").value)
+    },
+    cap:{
+      plates:num($("cap_plates").value), ifta:num($("cap_ifta").value), maint:num($("cap_maint").value),
+      hwy:num($("cap_hwy").value), tires:num($("cap_tires").value), usdot:num($("cap_usdot").value)
+    },
+    afterCap:{
+      plates:$("aftercap_plates").value==="true", ifta:$("aftercap_ifta").value==="true",
+      maint:$("aftercap_maint").value==="true", hwy:$("aftercap_hwy").value==="true",
+      tires:$("aftercap_tires").value==="true", usdot:$("aftercap_usdot").value==="true"
+    },
+    miles:{
+      otrMonth:num($("m_otr").value), localMonth:num($("m_local").value),
+      otrYear:num($("y_otr").value), localYear:num($("y_local").value)
+    }
+  };
+
+  // sync hours/days
+  if(s.hoursPerLoad>0) s.daysPerLoad = s.hoursPerLoad/24;
+  if(s.daysPerLoad>0 && s.hoursPerLoad<=0) s.hoursPerLoad = s.daysPerLoad*24;
+
+  return s;
+}
+
+function setSettings(s){
+  $("fleetMode").value=String(!!s.fleetMode);
+  $("driverWageWeekly").value=s.driverWageWeekly;
+
+  $("fuelPrice").value=s.fuelPrice;
+  $("truckMpg").value=s.truckMpg;
+
+  $("hoursPerLoad").value=s.hoursPerLoad;
+  $("daysPerLoad").value=s.daysPerLoad;
+
+  $("avgMilesLoadOtr").value=s.avgMilesLoadOtr;
+  $("avgMilesLoadLocal").value=s.avgMilesLoadLocal;
+
+  $("hh_house").value=s.household.house; $("hh_util").value=s.household.util;
+  $("hh_car").value=s.household.car; $("hh_groc").value=s.household.groc;
+  $("hh_carGas").value=s.household.carGas; $("hh_gasUtil").value=s.household.gasUtil;
+
+  $("biz_truck").value=s.business.truck; $("biz_trailer").value=s.business.trailer;
+  $("biz_ins").value=s.business.ins; $("biz_phone").value=s.business.phone;
+  $("biz_park").value=s.business.park; $("biz_eld").value=s.business.eld; $("biz_lb").value=s.business.lb;
+
+  $("pct_factoring").value=s.pct.factoring; $("pct_tax").value=s.pct.tax;
+  $("pct_plates").value=s.pct.plates; $("cap_plates").value=s.cap.plates; $("aftercap_plates").value=String(!!s.afterCap.plates);
+  $("pct_ifta").value=s.pct.ifta; $("cap_ifta").value=s.cap.ifta; $("aftercap_ifta").value=String(!!s.afterCap.ifta);
+  $("pct_maint").value=s.pct.maint; $("cap_maint").value=s.cap.maint; $("aftercap_maint").value=String(!!s.afterCap.maint);
+  $("pct_hwy").value=s.pct.hwy; $("cap_hwy").value=s.cap.hwy; $("aftercap_hwy").value=String(!!s.afterCap.hwy);
+  $("pct_tires").value=s.pct.tires; $("cap_tires").value=s.cap.tires; $("aftercap_tires").value=String(!!s.afterCap.tires);
+  $("pct_usdot").value=s.pct.usdot; $("cap_usdot").value=s.cap.usdot; $("aftercap_usdot").value=String(!!s.afterCap.usdot);
+
+  $("m_otr").value=s.miles.otrMonth; $("m_local").value=s.miles.localMonth;
+  $("y_otr").value=s.miles.otrYear; $("y_local").value=s.miles.localYear;
+}
+
+function persistSettings(){ saveJSON(KEY_SETTINGS, getSettings()); refreshAll(); }
+
+[
+  "fleetMode","driverWageWeekly","fuelPrice","truckMpg","hoursPerLoad","daysPerLoad","avgMilesLoadOtr","avgMilesLoadLocal",
+  "hh_house","hh_util","hh_car","hh_groc","hh_carGas","hh_gasUtil",
+  "biz_truck","biz_trailer","biz_ins","biz_phone","biz_park","biz_eld","biz_lb",
+  "pct_factoring","pct_tax","pct_plates","cap_plates","aftercap_plates",
+  "pct_ifta","cap_ifta","aftercap_ifta",
+  "pct_maint","cap_maint","aftercap_maint",
+  "pct_hwy","cap_hwy","aftercap_hwy",
+  "pct_tires","cap_tires","aftercap_tires",
+  "pct_usdot","cap_usdot","aftercap_usdot",
+  "m_otr","m_local","y_otr","y_local"
+].forEach(id=>{ $(id).addEventListener("input",persistSettings); $(id).addEventListener("change",persistSettings); });
+
+$("hoursPerLoad").addEventListener("input",()=>{ $("daysPerLoad").value=(num($("hoursPerLoad").value)/24).toFixed(2); });
+$("daysPerLoad").addEventListener("input",()=>{ $("hoursPerLoad").value=(num($("daysPerLoad").value)*24).toFixed(2); });
+
+$("btnResetDefaults").addEventListener("click",()=>{ setSettings(structuredClone(DEFAULTS)); persistSettings(); });
+
+function monthlyTotals(s){
+  const hh=Object.values(s.household).reduce((a,b)=>a+num(b),0);
+  let biz=Object.values(s.business).reduce((a,b)=>a+num(b),0);
+  if(s.fleetMode) biz += num(s.driverWageWeekly)*52/12;
+  return {hh,biz};
+}
+function fuelCostForMiles(s,miles){ return (miles/Math.max(0.01,s.truckMpg))*s.fuelPrice; }
+function capForPeriod(annualCap, period){ return period==="year"?annualCap:annualCap/12; }
+function cappedAmt(gross,p,capAnnual,period,after){ const raw=gross*p; const cap=capForPeriod(capAnnual,period); return after?raw:Math.min(raw,cap); }
+
+function solveGrossRequired(s,miles,period){
+  const {hh,biz}=monthlyTotals(s);
+  const fixed=(period==="year")?(hh+biz)*12:(hh+biz);
+  const fuel=fuelCostForMiles(s,miles);
+  let gross=(fixed+fuel)/Math.max(0.01,(1-(s.pct.factoring+s.pct.tax+s.pct.plates+s.pct.ifta+s.pct.maint+s.pct.hwy+s.pct.tires+s.pct.usdot)));
+
+  for(let i=0;i<60;i++){
+    const factoring=gross*s.pct.factoring;
+    const tax=gross*s.pct.tax;
+    const plates=cappedAmt(gross,s.pct.plates,s.cap.plates,period,s.afterCap.plates);
+    const ifta=cappedAmt(gross,s.pct.ifta,s.cap.ifta,period,s.afterCap.ifta);
+    const maint=cappedAmt(gross,s.pct.maint,s.cap.maint,period,s.afterCap.maint);
+    const hwy=cappedAmt(gross,s.pct.hwy,s.cap.hwy,period,s.afterCap.hwy);
+    const tires=cappedAmt(gross,s.pct.tires,s.cap.tires,period,s.afterCap.tires);
+    const usdot=cappedAmt(gross,s.pct.usdot,s.cap.usdot,period,s.afterCap.usdot);
+    const next=fixed+fuel+factoring+tax+plates+ifta+maint+hwy+tires+usdot;
+    if(Math.abs(next-gross)<1e-6*Math.max(1,gross)){gross=next;break}
+    gross=next;
+  }
+  const r={period,miles,fixed,fuel,gross,rpm:gross/Math.max(1,miles)};
+  r.factoring=gross*s.pct.factoring; r.tax=gross*s.pct.tax;
+  r.plates=cappedAmt(gross,s.pct.plates,s.cap.plates,period,s.afterCap.plates);
+  r.ifta=cappedAmt(gross,s.pct.ifta,s.cap.ifta,period,s.afterCap.ifta);
+  r.maint=cappedAmt(gross,s.pct.maint,s.cap.maint,period,s.afterCap.maint);
+  r.hwy=cappedAmt(gross,s.pct.hwy,s.cap.hwy,period,s.afterCap.hwy);
+  r.tires=cappedAmt(gross,s.pct.tires,s.cap.tires,period,s.afterCap.tires);
+  r.usdot=cappedAmt(gross,s.pct.usdot,s.cap.usdot,period,s.afterCap.usdot);
+  return r;
+}
+
+function getTrips(){ return loadJSON(KEY_TRIPS, []); }
+function saveTrips(list){ saveJSON(KEY_TRIPS, list); }
+
+function calcTripNet(s, t){
+  const miles=num(t.deadhead)+num(t.loaded);
+  const gross=num(t.gross);
+  const gallons=num(t.gallons);
+  const misc=num(t.misc);
+  const fuel = gallons>0 ? gallons*s.fuelPrice : fuelCostForMiles(s,miles);
+  const net = gross - (fuel + misc + gross*s.pct.factoring + gross*s.pct.tax + gross*s.pct.plates + gross*s.pct.ifta + gross*s.pct.maint + gross*s.pct.hwy + gross*s.pct.tires + gross*s.pct.usdot);
+  return {miles,gross,fuel,net};
+}
+
+function previewTrip(){
+  const s=getSettings();
+  const t={
+    deadhead:num($("trip_deadhead").value), loaded:num($("trip_loaded").value),
+    gross:num($("trip_gross").value), gallons:num($("trip_gallons").value),
+    misc:num($("trip_misc").value), hoursAway:num($("trip_hoursAway").value)
+  };
+  const miles=t.deadhead+t.loaded;
+  const mpg=t.gallons>0 ? miles/t.gallons : 0;
+  const {net}=calcTripNet(s,t);
+  const otraf = t.hoursAway>0 ? net/t.hoursAway : 0;
+  $("trip_mpg").textContent = mpg>0 ? mpg.toFixed(2) : "—";
+  $("trip_net").textContent = money(net);
+  $("trip_otraff").textContent = t.hoursAway>0 ? money(otraf)+"/hr" : "—";
+}
+["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway"].forEach(id=>$(id).addEventListener("input",previewTrip));
+
+$("btnSaveTrip").addEventListener("click",()=>{
+  const t={
+    id: "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16),
+    ts:new Date().toISOString(),
+    truck: $("trip_truck").value.trim()||"Truck",
+    deadhead:num($("trip_deadhead").value),
+    loaded:num($("trip_loaded").value),
+    gross:num($("trip_gross").value),
+    gallons:num($("trip_gallons").value),
+    misc:num($("trip_misc").value),
+    hoursAway:num($("trip_hoursAway").value),
+    notes:$("trip_notes").value.trim()
+  };
+  const list=getTrips(); list.unshift(t); saveTrips(list);
+  ["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway","trip_notes"].forEach(id=>$(id).value="");
+  previewTrip(); refreshAll();
+});
+
+$("btnClearTrips").addEventListener("click",()=>{ if(confirm("Clear all loads on this phone?")){ saveTrips([]); refreshAll(); }});
+$("trip_search").addEventListener("input",()=>refreshTripsList());
+
+$("btnExportJson").addEventListener("click",()=>{
+  const txt=JSON.stringify(getTrips(),null,2);
+  navigator.clipboard?.writeText(txt);
+  alert("Trips JSON copied (if clipboard allowed).");
+});
+
+function refreshTripsList(){
+  const q=($("trip_search").value||"").toLowerCase().trim();
+  const s=getSettings();
+  const list=getTrips().filter(t=>{
+    if(!q) return true;
+    const hay=`${t.truck||""} ${t.notes||""} ${t.ts||""}`.toLowerCase();
+    return hay.includes(q);
+  }).slice(0,50);
+
+  const box=$("trip_list");
+  if(!list.length){ box.innerHTML='<div class="muted">No saved loads yet.</div>'; return; }
+
+  box.innerHTML = list.map(t=>{
+    const calc=calcTripNet(s,t);
+    const otraf = num(t.hoursAway)>0 ? calc.net/num(t.hoursAway) : 0;
+    return `<div class="kpi"><div>
+      <b>${t.truck}</b><div class="muted">${new Date(t.ts).toLocaleString()} • Miles ${calc.miles.toFixed(0)} • Gross ${money(calc.gross)}</div>
+      <div class="muted">${t.notes||""}</div>
+    </div><div><b>${money(calc.net)}</b><div class="muted">OTRAFF ${num(t.hoursAway)>0?money(otraf)+"/hr":"—"}</div></div></div>`;
+  }).join("");
+}
+
+function brokerEmailText(){
+  const s=getSettings();
+  const sc=$("brokerScenario").value;
+  let period="month", miles=s.miles.otrMonth, label="OTR Monthly";
+  if(sc==="LOCAL_MONTH"){period="month"; miles=s.miles.localMonth; label="Local Monthly";}
+  if(sc==="OTR_YEAR"){period="year"; miles=s.miles.otrYear; label="OTR Yearly";}
+  if(sc==="LOCAL_YEAR"){period="year"; miles=s.miles.localYear; label="Local Yearly";}
+  const r=solveGrossRequired(s,miles,period);
+  const mode=s.fleetMode?"FLEET MODE (includes payroll)":"OWNER‑OP MODE";
+  return `Minimum All‑In Rate Basis (${mode})
+
+Scenario: ${label}
+Miles Assumed: ${miles.toLocaleString()}
+Minimum Sustainable Rate Needed: ${money(r.rpm)} per mile
+
+Assumptions:
+- Fuel: $${s.fuelPrice.toFixed(3)}/gal
+- MPG: ${s.truckMpg.toFixed(2)}
+- Factoring: ${(s.pct.factoring*100).toFixed(2)}% of gross
+- Tax reserve: ${(s.pct.tax*100).toFixed(2)}% of gross (no cap)
+- Annual capped reserves (monthly uses cap/12 unless “Continue after cap” ON)
+
+Included: household + business fixed costs, fuel, factoring, tax reserve, and reserve funding.
+`;
+}
+function refreshBrokers(){ $("brokerText").value=brokerEmailText(); }
+$("brokerScenario").addEventListener("change",refreshBrokers);
+$("btnCopyBroker").addEventListener("click",()=>{ navigator.clipboard?.writeText($("brokerText").value); alert("Copied. Paste into email/text."); });
+
+function renderBlueprint(){
+  const s=getSettings();
+  const trips=getTrips();
+  const {hh,biz}=monthlyTotals(s);
+  const mode=s.fleetMode?"FLEET MODE":"OWNER‑OP MODE";
+
+  const scenarios=[
+    ["OTR Monthly","month",s.miles.otrMonth],
+    ["Local Monthly","month",s.miles.localMonth],
+    ["OTR Yearly","year",s.miles.otrYear],
+    ["Local Yearly","year",s.miles.localYear],
+  ];
+
+  const scenHtml = scenarios.map(([name,period,miles])=>{
+    const r=solveGrossRequired(s,miles,period);
+    return `<div class="card">
+      <h3 style="margin:0 0 6px">${name}</h3>
+      <div class="kpi"><b>Minimum $/mile</b><div>${money(r.rpm)}/mile</div></div>
+      <div class="kpi"><b>Gross required</b><div>${money(r.gross)}</div></div>
+      <div class="kpi"><b>Fixed</b><div>${money(r.fixed)}</div></div>
+      <div class="kpi"><b>Fuel</b><div>${money(r.fuel)}</div></div>
+      <div class="muted mono" style="margin-top:8px">factoring ${money(r.factoring)}
+tax ${money(r.tax)}
+plates ${money(r.plates)} | ifta ${money(r.ifta)} | maint ${money(r.maint)}
+hwy ${money(r.hwy)} | tires ${money(r.tires)} | usdot ${money(r.usdot)}</div>
+    </div>`;
+  }).join("");
+
+  // OTRAFf from saved loads
+  const hoursAwayYTD = trips.reduce((a,t)=>a+num(t.hoursAway),0);
+  const netYTD = trips.reduce((a,t)=>a+calcTripNet(s,t).net,0);
+  const otrafYTD = hoursAwayYTD>0 ? netYTD/hoursAwayYTD : 0;
+
+  // monthly modeled hours away (needs avg miles/load)
+  const otrLoads = s.avgMilesLoadOtr>0 ? s.miles.otrMonth/s.avgMilesLoadOtr : 0;
+  const localLoads = s.avgMilesLoadLocal>0 ? s.miles.localMonth/s.avgMilesLoadLocal : 0;
+  const otrHours = otrLoads*s.hoursPerLoad;
+  const localHours = localLoads*s.hoursPerLoad;
+
+  $("blueprintOut").innerHTML = `
+    <div class="kpi"><b>Mode</b><div>${mode}</div></div>
+    <div class="kpi"><b>Household monthly</b><div>${money(hh)}</div></div>
+    <div class="kpi"><b>Business monthly</b><div>${money(biz)}</div></div>
+    <div class="kpi"><b>O.T.R.A.F.F (YTD)</b><div>${hoursAwayYTD>0?money(otrafYTD)+"/hr":"Enter trips to calculate"}</div></div>
+    <div class="kpi"><b>YTD net revenue</b><div>${money(netYTD)}</div></div>
+    <div class="kpi"><b>Monthly hours away model</b><div>OTR ${otrHours.toFixed(1)} hrs • Local ${localHours.toFixed(1)} hrs</div></div>
+    <div class="grid cols2" style="margin-top:12px">${scenHtml}</div>
+  `;
+}
+
+function loadProfiles(key){ return loadJSON(key, []); }
+function saveProfiles(key, list){ saveJSON(key, list); }
+function filterProfiles(list,q){
+  q=(q||"").toLowerCase().trim();
+  if(!q) return list.slice(0,50);
+  return list.filter(p=>{
+    const hay=`${p.name||""} ${p.city||""} ${p.state||""} ${p.zip||""} ${p.phone||""} ${p.email||""} ${p.address||""} ${p.notes||""}`.toLowerCase();
+    return hay.includes(q);
+  }).slice(0,50);
+}
+function renderPick(sel, items){
+  sel.innerHTML="";
+  items.forEach(p=>{
+    const o=document.createElement("option");
+    o.value=p.id;
+    o.textContent=`${p.name||"(no name)"} — ${p.city||""} ${p.state||""} ${p.phone||""}`.trim();
+    sel.appendChild(o);
+  });
+}
+function uuid(){ return "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16); }
+function upsertProfile(key, profile){
+  let list=loadProfiles(key);
+  if(!profile.id) profile.id=uuid();
+  profile.updatedAt=new Date().toISOString();
+  const idx=list.findIndex(p=>p.id===profile.id || ((p.name||"").toLowerCase()===(profile.name||"").toLowerCase() && (p.zip||"")===(profile.zip||"")));
+  if(idx>=0) list[idx]={...list[idx],...profile};
+  else list.unshift(profile);
+  saveProfiles(key,list);
+  return profile.id;
+}
+function deleteProfile(key,id){ saveProfiles(key, loadProfiles(key).filter(p=>p.id!==id)); }
+function clearProfiles(key){ saveProfiles(key, []); }
+function fill(prefix,p){
+  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>$(prefix+"_"+f).value = p?.[f]||"");
+}
+function read(prefix){
+  const o={};
+  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>o[f]=$(prefix+"_"+f).value.trim());
+  return o;
+}
+
+let selectedShipper=null, selectedConsignee=null;
+
+function refreshShippers(){
+  const list=loadProfiles(KEY_SHIPPERS);
+  renderPick($("shipperPick"), filterProfiles(list, $("shipperSearch").value));
+}
+function refreshConsignees(){
+  const list=loadProfiles(KEY_CONSIGNEES);
+  renderPick($("consigneePick"), filterProfiles(list, $("consigneeSearch").value));
+}
+
+$("shipperSearch").addEventListener("input",refreshShippers);
+$("consigneeSearch").addEventListener("input",refreshConsignees);
+
+$("shipperPick").addEventListener("change",()=>{
+  selectedShipper=$("shipperPick").value;
+  const p=loadProfiles(KEY_SHIPPERS).find(x=>x.id===selectedShipper);
+  fill("shipper",p);
+});
+$("consigneePick").addEventListener("change",()=>{
+  selectedConsignee=$("consigneePick").value;
+  const p=loadProfiles(KEY_CONSIGNEES).find(x=>x.id===selectedConsignee);
+  fill("consignee",p);
+});
+
+$("btnSaveShipper").addEventListener("click",()=>{
+  const data=read("shipper");
+  if(!data.name){alert("Shipper name required.");return;}
+  selectedShipper=upsertProfile(KEY_SHIPPERS,{id:selectedShipper,...data});
+  refreshShippers(); alert("Saved.");
+});
+$("btnDeleteShipper").addEventListener("click",()=>{
+  if(!selectedShipper){alert("Select a shipper first.");return;}
+  deleteProfile(KEY_SHIPPERS, selectedShipper); selectedShipper=null; fill("shipper",null); refreshShippers();
+});
+$("btnClearShippers").addEventListener("click",()=>{
+  if(confirm("Clear all shipper profiles on this phone?")){ clearProfiles(KEY_SHIPPERS); selectedShipper=null; fill("shipper",null); refreshShippers(); }
+});
+
+$("btnSaveConsignee").addEventListener("click",()=>{
+  const data=read("consignee");
+  if(!data.name){alert("Consignee name required.");return;}
+  selectedConsignee=upsertProfile(KEY_CONSIGNEES,{id:selectedConsignee,...data});
+  refreshConsignees(); alert("Saved.");
+});
+$("btnDeleteConsignee").addEventListener("click",()=>{
+  if(!selectedConsignee){alert("Select a consignee first.");return;}
+  deleteProfile(KEY_CONSIGNEES, selectedConsignee); selectedConsignee=null; fill("consignee",null); refreshConsignees();
+});
+$("btnClearConsignees").addEventListener("click",()=>{
+  if(confirm("Clear all consignee profiles on this phone?")){ clearProfiles(KEY_CONSIGNEES); selectedConsignee=null; fill("consignee",null); refreshConsignees(); }
+});
+
+function refreshAll(){
+  renderBlueprint();
+  refreshBrokers();
+  refreshTripsList();
+  refreshShippers();
+  refreshConsignees();
+  previewTrip();
+}
+
+(function init(){
+  const saved=loadJSON(KEY_SETTINGS,null);
+  setSettings(saved||structuredClone(DEFAULTS));
+  saveJSON(KEY_SETTINGS,getSettings());
+  refreshAll();
+})();
+</script>
+</body>
+</html>
