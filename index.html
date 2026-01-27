@@ -278,6 +278,13 @@
     <div class="card">
       <h2 style="margin:0 0 6px">Load History</h2>
       <label>Search</label><input id="trip_search" placeholder="search notes/truck"/>
+      <label>Pick a saved load</label>
+<select id="trip_pickLoad">
+  <option value="">— Select a saved load —</option>
+</select>
+<div class="muted" style="margin-top:6px">
+  Selecting a load will fill the Trip Entry fields (it won’t change saved history unless you Save Load).
+</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
         <button class="btn" id="btnExportJson">Copy Trips JSON</button>
       </div>
@@ -582,6 +589,12 @@ $("btnSaveTrip").addEventListener("click",()=>{
 
 $("btnClearTrips").addEventListener("click",()=>{ if(confirm("Clear all loads on this phone?")){ saveTrips([]); refreshAll(); }});
 $("trip_search").addEventListener("input",()=>refreshTripsList());
+  $("trip_pickLoad").addEventListener("change", ()=>{
+  const id = $("trip_pickLoad").value;
+  if(!id) return;
+  const t = getTrips().find(x=>x.id===id);
+  if(t) fillTripEntryFromLoad(t);
+});
 
 $("btnExportJson").addEventListener("click",()=>{
   const txt=JSON.stringify(getTrips(),null,2);
@@ -609,6 +622,31 @@ function refreshTripsList(){
       <div class="muted">${t.notes||""}</div>
     </div><div><b>${money(calc.net)}</b><div class="muted">OTRAFF ${num(t.hoursAway)>0?money(otraf)+"/hr":"—"}</div></div></div>`;
   }).join("");
+}
+  function refreshTripsDropdown(){
+  const trips = getTrips();
+  const sel = $("trip_pickLoad");
+  if(!sel) return;
+
+  // Keep the first "placeholder" option
+  sel.innerHTML = `<option value="">— Select a saved load —</option>` +
+    trips.slice(0,200).map(t=>{
+      const when = new Date(t.ts).toLocaleString();
+      const label = `${t.truck || "Truck"} • ${when} • $${Number(t.gross||0).toFixed(0)} • ${Number(t.loaded||0).toFixed(0)}mi`;
+      return `<option value="${t.id}">${esc(label)}</option>`;
+    }).join("");
+}
+
+function fillTripEntryFromLoad(t){
+  $("trip_truck").value = t.truck || "";
+  $("trip_deadhead").value = Number(t.deadhead||0);
+  $("trip_loaded").value = Number(t.loaded||0);
+  $("trip_gross").value = Number(t.gross||0);
+  $("trip_gallons").value = Number(t.gallons||0);
+  $("trip_misc").value = Number(t.misc||0);
+  $("trip_hoursAway").value = Number(t.hoursAway||0);
+  $("trip_notes").value = t.notes || "";
+  previewTrip();
 }
 
 /* ===================== INVOICES ===================== */
@@ -913,6 +951,7 @@ function refreshAll(){
   renderBlueprint();
   refreshBrokers();
   refreshTripsList();
+  refreshTripsDropdown();
   refreshShippers();
   refreshConsignees();
   previewTrip();
