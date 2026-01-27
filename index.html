@@ -18,7 +18,29 @@
   textarea{min-height:150px}
   .grid{display:grid;gap:12px}
   @media(min-width:900px){.grid.cols2{grid-template-columns:1fr 1fr}}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+ /* Mobile-first: stack fields */
+.row{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:10px;
+}
+/* Only go 2-column when there's room */
+@media (min-width: 700px){
+  .row{
+    grid-template-columns: 1fr 1fr;
+  }
+/* Let button groups wrap on small screens */
+.actions, .btnrow, .tabs, .toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+  
+/* Buttons take up space nicely and wrap instead of overlapping */
+.btn, .tabbtn{
+  flex: 1 1 160px;
+  white-space: normal;
+}
   .btn{border:1px solid #22305e;background:#1a2550;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:900}
   .btn.primary{background:#1f5bff;border-color:#2b6cff}
   .btn.good{background:#19b56f;border-color:#1ba86a}
