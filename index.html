@@ -6,8 +6,9 @@
 <title>Trucking Made Simple — Blueprint (MVP)</title>
 <style>
   /* Make width + padding behave on mobile */
-  *, *::before, *::after { box-sizing: border-box; }
-
+*, *::before, *::after {
+  box-sizing: border-box;
+}
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1020;color:#eef2ff}
   header{position:sticky;top:0;background:#070a14;border-bottom:1px solid #22305e}
   .wrap{max-width:1000px;margin:0 auto;padding:14px}
@@ -15,93 +16,82 @@
   .tabs{display:flex;gap:8px;flex-wrap:wrap}
   .tabbtn{border:1px solid #22305e;background:#121a33;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:800}
   .tabbtn.active{border-color:#4aa3ff}
-
   .card{
-    background:#121a33;
-    border:1px solid #22305e;
-    border-radius:16px;
-    padding:12px;
-    margin-top:12px;
-    overflow:hidden;
-  }
-
+  background:#121a33;
+  border:1px solid #22305e;
+  border-radius:16px;
+  padding:12px;
+  margin-top:12px;
+  overflow:hidden;
+}
   label{display:block;font-size:12px;color:#a9b4d0;margin:10px 0 6px}
-
   input, select, textarea{
-    width:100%;
-    max-width:100%;
-    padding:10px;
-    border-radius:12px;
-    border:1px solid #22305e;
-    background:#0e1530;
-    color:#eef2ff;
-  }
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #22305e;
+  background: #0e1530;
+  color: #eef2ff;
+}
   textarea{min-height:150px;}
-
   .grid{display:grid;gap:12px}
   @media(min-width:900px){.grid.cols2{grid-template-columns:1fr 1fr}}
-
-  /* Mobile-first: stack fields */
+ /* Mobile-first: stack fields */
+.row{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:10px;
+}
+/* Only go 2-column when there's room */
+@media (min-width: 700px){
   .row{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:10px;
+    grid-template-columns: 1fr 1fr;
   }
-
-  /* Only go 2-column when there's room */
-  @media (min-width: 700px){
-    .row{ grid-template-columns:1fr 1fr; }
-  }
-
-  /* Let button groups wrap on small screens */
-  .actions, .btnrow, .tabs, .toolbar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-  }
-
-  /* Buttons take up space nicely and wrap instead of overlapping */
-  .btn, .tabbtn{
-    flex:1 1 160px;
-    white-space:normal;
-  }
-
+/* Let button groups wrap on small screens */
+.actions, .btnrow, .tabs, .toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+  
+/* Buttons take up space nicely and wrap instead of overlapping */
+.btn, .tabbtn{
+  flex: 1 1 160px;
+  white-space: normal;
+}
   .btn{border:1px solid #22305e;background:#1a2550;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:900}
   .btn.primary{background:#1f5bff;border-color:#2b6cff}
   .btn.good{background:#19b56f;border-color:#1ba86a}
   .btn.bad{background:#ff2f58;border-color:#ff2f58}
-
   .muted{color:#a9b4d0;font-size:13px}
   .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #22305e;border-radius:14px;background:#0c1230;margin-top:8px}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:pre-wrap}
 </style>
 </head>
-
 <body>
 <header><div class="wrap">
-  <h1>Trucking Made Simple — Blueprint (Owner-Operator Edition)</h1>
+  <h1>Trucking Made Simple — Blueprint (Owner‑Operator Edition)</h1>
   <div class="tabs">
     <button class="tabbtn active" data-tab="settings">Settings</button>
     <button class="tabbtn" data-tab="blueprint">Blueprint</button>
     <button class="tabbtn" data-tab="brokers">Brokers</button>
     <button class="tabbtn" data-tab="trip">Trip Entry</button>
-    <button class="tabbtn" data-tab="invoices">Invoices</button>
     <button class="tabbtn" data-tab="profiles">Shipper/Consignee</button>
   </div>
   <div class="muted" style="margin-top:8px">
-    No-Touch Rule: Only <b>Settings</b> is editable. Blueprint/Brokers are read-only outputs. Data saves on this phone (localStorage).
+    No‑Touch Rule: Only <b>Settings</b> is editable. Blueprint/Brokers are read‑only outputs. Data saves on this phone (localStorage).
   </div>
 </div></header>
 
 <main class="wrap">
-
 <section id="tab-settings" class="tab">
   <div class="grid cols2">
     <div class="card">
       <h2 style="margin:0 0 8px">Mode</h2>
       <label>Fleet Mode (include payroll)</label>
       <select id="fleetMode">
-        <option value="false">OFF (Owner-Operator)</option>
+        <option value="false">OFF (Owner‑Operator)</option>
         <option value="true">ON (Fleet Mode)</option>
       </select>
       <label>Company driver wage per week (only used when Fleet Mode ON)</label>
@@ -116,7 +106,7 @@
       </div>
       <div class="row">
         <div><label>Hours away per load</label><input id="hoursPerLoad" type="number" step="0.25"/></div>
-        <div><label>Days away per load (auto-sync)</label><input id="daysPerLoad" type="number" step="0.01"/></div>
+        <div><label>Days away per load (auto‑sync)</label><input id="daysPerLoad" type="number" step="0.01"/></div>
       </div>
       <div class="row">
         <div><label>Avg miles/load (OTR)</label><input id="avgMilesLoadOtr" type="number" step="1"/></div>
@@ -219,7 +209,7 @@
 
 <section id="tab-blueprint" class="tab" style="display:none">
   <div class="card">
-    <h2 style="margin:0 0 6px">Blueprint (Read-Only)</h2>
+    <h2 style="margin:0 0 6px">Blueprint (Read‑Only)</h2>
     <div class="muted">Minimum sustainable rate per mile for each scenario + O.T.R.A.F.F from saved loads.</div>
     <div id="blueprintOut"></div>
   </div>
@@ -283,21 +273,6 @@
       </div>
       <div id="trip_list" style="margin-top:10px"></div>
     </div>
-  </div>
-</section>
-
-<!-- ✅ NEW TAB: INVOICES -->
-<section id="tab-invoices" class="tab" style="display:none">
-  <div class="card">
-    <h2 style="margin:0 0 6px">Invoices</h2>
-    <div class="muted">Preview pulls everything from the Trip Entry tab (current fields + KPIs + Load History). Print opens a clean printable page.</div>
-
-    <div class="actions" style="margin-top:10px">
-      <button class="btn primary" id="btnPreviewInvoice">Preview</button>
-      <button class="btn" id="btnPrintInvoice">Print</button>
-    </div>
-
-    <div id="invoiceOut" style="margin-top:12px"></div>
   </div>
 </section>
 
@@ -611,129 +586,6 @@ function refreshTripsList(){
   }).join("");
 }
 
-/* ===================== INVOICES ===================== */
-function esc(s){
-  return String(s ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[m]));
-}
-
-function buildTripsHtmlForInvoice(){
-  const s = getSettings();
-  const trips = getTrips();
-
-  const current = {
-    truck: $("trip_truck")?.value?.trim() || "",
-    deadhead: num($("trip_deadhead")?.value),
-    loaded: num($("trip_loaded")?.value),
-    gross: num($("trip_gross")?.value),
-    gallons: num($("trip_gallons")?.value),
-    misc: num($("trip_misc")?.value),
-    hoursAway: num($("trip_hoursAway")?.value),
-    notes: $("trip_notes")?.value?.trim() || ""
-  };
-
-  const milesCur = current.deadhead + current.loaded;
-  const mpgCur = current.gallons > 0 ? milesCur / current.gallons : 0;
-  const calcCur = calcTripNet(s, current);
-  const otrafCur = current.hoursAway > 0 ? calcCur.net / current.hoursAway : 0;
-
-  const historyHtml = trips.length
-    ? trips.map(t => {
-        const c = calcTripNet(s, t);
-        const otraf = num(t.hoursAway) > 0 ? c.net / num(t.hoursAway) : 0;
-        return `
-          <div style="padding:10px;border:1px solid #22305e;border-radius:12px;margin-top:10px;background:#0c1230">
-            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div>
-                <b>${esc(t.truck)}</b>
-                <div class="muted">${new Date(t.ts).toLocaleString()}</div>
-                <div class="muted">${esc(t.notes || "")}</div>
-              </div>
-              <div style="text-align:right">
-                <div><b>Net:</b> ${money(c.net)}</div>
-                <div class="muted">Miles ${c.miles.toFixed(0)} • Gross ${money(c.gross)}</div>
-                <div class="muted">OTRAFF ${num(t.hoursAway)>0 ? money(otraf)+"/hr" : "—"}</div>
-              </div>
-            </div>
-            <div class="muted" style="margin-top:6px">
-              Deadhead ${num(t.deadhead).toFixed(0)} • Loaded ${num(t.loaded).toFixed(0)} • Gallons ${num(t.gallons).toFixed(2)} • Tolls/Misc ${money(num(t.misc))}
-            </div>
-          </div>
-        `;
-      }).join("")
-    : `<div class="muted" style="margin-top:10px">No saved loads yet.</div>`;
-
-  return `
-    <div class="card">
-      <h3 style="margin:0 0 6px">Trip Entry Snapshot (Current Fields)</h3>
-
-      <div class="kpi"><b>Truck #</b><div>${esc(current.truck || "—")}</div></div>
-      <div class="kpi"><b>Deadhead miles</b><div>${current.deadhead.toFixed(0)}</div></div>
-      <div class="kpi"><b>Loaded miles</b><div>${current.loaded.toFixed(0)}</div></div>
-      <div class="kpi"><b>Total miles</b><div>${milesCur.toFixed(0)}</div></div>
-
-      <div class="kpi"><b>Gross revenue</b><div>${money(current.gross)}</div></div>
-      <div class="kpi"><b>Gallons used</b><div>${current.gallons ? current.gallons.toFixed(2) : "—"}</div></div>
-      <div class="kpi"><b>Tolls/misc</b><div>${money(current.misc)}</div></div>
-      <div class="kpi"><b>Hours away</b><div>${current.hoursAway ? current.hoursAway.toFixed(2) : "—"}</div></div>
-
-      <div class="kpi"><b>Auto MPG (current)</b><div>${mpgCur>0 ? mpgCur.toFixed(2) : "—"}</div></div>
-      <div class="kpi"><b>Net revenue (current)</b><div>${money(calcCur.net)}</div></div>
-      <div class="kpi"><b>O.T.R.A.F.F (current)</b><div>${current.hoursAway>0 ? money(otrafCur)+"/hr" : "—"}</div></div>
-
-      <div class="muted" style="margin-top:8px"><b>Notes:</b> ${esc(current.notes || "—")}</div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 6px">Load History (All Saved Loads)</h3>
-      ${historyHtml}
-    </div>
-  `;
-}
-
-function renderInvoicePreview(){
-  $("invoiceOut").innerHTML = buildTripsHtmlForInvoice();
-}
-
-function printInvoicePreview(){
-  renderInvoicePreview();
-  const content = $("invoiceOut").innerHTML;
-
-  const w = window.open("", "_blank");
-  w.document.open();
-  w.document.write(`
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Invoice Preview</title>
-<style>
-  *, *::before, *::after { box-sizing:border-box; }
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#fff;color:#111;padding:18px}
-  h2,h3{margin:0 0 10px}
-  .muted{color:#555;font-size:13px}
-  .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-top:12px}
-  .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #eee;border-radius:10px;background:#fafafa;margin-top:8px}
-  @media print{
-    body{padding:0}
-    .card{break-inside:avoid}
-  }
-</style>
-</head>
-<body>
-  <h2>Trucking Made Simple — Invoice Preview</h2>
-  <div class="muted">Generated: ${new Date().toLocaleString()}</div>
-  ${content}
-  <script>window.onload=()=>window.print();<\/script>
-</body>
-</html>
-  `);
-  w.document.close();
-}
-/* ===================== END INVOICES ===================== */
-
 function brokerEmailText(){
   const s=getSettings();
   const sc=$("brokerScenario").value;
@@ -742,8 +594,8 @@ function brokerEmailText(){
   if(sc==="OTR_YEAR"){period="year"; miles=s.miles.otrYear; label="OTR Yearly";}
   if(sc==="LOCAL_YEAR"){period="year"; miles=s.miles.localYear; label="Local Yearly";}
   const r=solveGrossRequired(s,miles,period);
-  const mode=s.fleetMode?"FLEET MODE (includes payroll)":"OWNER-OP MODE";
-  return `Minimum All-In Rate Basis (${mode})
+  const mode=s.fleetMode?"FLEET MODE (includes payroll)":"OWNER‑OP MODE";
+  return `Minimum All‑In Rate Basis (${mode})
 
 Scenario: ${label}
 Miles Assumed: ${miles.toLocaleString()}
@@ -767,7 +619,7 @@ function renderBlueprint(){
   const s=getSettings();
   const trips=getTrips();
   const {hh,biz}=monthlyTotals(s);
-  const mode=s.fleetMode?"FLEET MODE":"OWNER-OP MODE";
+  const mode=s.fleetMode?"FLEET MODE":"OWNER‑OP MODE";
 
   const scenarios=[
     ["OTR Monthly","month",s.miles.otrMonth],
@@ -791,10 +643,12 @@ hwy ${money(r.hwy)} | tires ${money(r.tires)} | usdot ${money(r.usdot)}</div>
     </div>`;
   }).join("");
 
+  // OTRAFf from saved loads
   const hoursAwayYTD = trips.reduce((a,t)=>a+num(t.hoursAway),0);
   const netYTD = trips.reduce((a,t)=>a+calcTripNet(s,t).net,0);
   const otrafYTD = hoursAwayYTD>0 ? netYTD/hoursAwayYTD : 0;
 
+  // monthly modeled hours away (needs avg miles/load)
   const otrLoads = s.avgMilesLoadOtr>0 ? s.miles.otrMonth/s.avgMilesLoadOtr : 0;
   const localLoads = s.avgMilesLoadLocal>0 ? s.miles.localMonth/s.avgMilesLoadLocal : 0;
   const otrHours = otrLoads*s.hoursPerLoad;
@@ -841,8 +695,8 @@ function upsertProfile(key, profile){
   saveProfiles(key,list);
   return profile.id;
 }
-function deleteProfile(key,id){ saveJSON(key, loadProfiles(key).filter(p=>p.id!==id)); }
-function clearProfiles(key){ saveJSON(key, []); }
+function deleteProfile(key,id){ saveProfiles(key, loadProfiles(key).filter(p=>p.id!==id)); }
+function clearProfiles(key){ saveProfiles(key, []); }
 function fill(prefix,p){
   ["name","phone","city","state","address","zip","email","notes"].forEach(f=>$(prefix+"_"+f).value = p?.[f]||"");
 }
@@ -905,10 +759,6 @@ $("btnClearConsignees").addEventListener("click",()=>{
   if(confirm("Clear all consignee profiles on this phone?")){ clearProfiles(KEY_CONSIGNEES); selectedConsignee=null; fill("consignee",null); refreshConsignees(); }
 });
 
-/* invoice button listeners */
-$("btnPreviewInvoice").addEventListener("click", renderInvoicePreview);
-$("btnPrintInvoice").addEventListener("click", printInvoicePreview);
-
 function refreshAll(){
   renderBlueprint();
   refreshBrokers();
@@ -916,7 +766,6 @@ function refreshAll(){
   refreshShippers();
   refreshConsignees();
   previewTrip();
-  renderInvoicePreview();
 }
 
 (function init(){
