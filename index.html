@@ -6,9 +6,8 @@
 <title>Trucking Made Simple — Blueprint (MVP)</title>
 <style>
   /* Make width + padding behave on mobile */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
+
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1020;color:#eef2ff}
   header{position:sticky;top:0;background:#070a14;border-bottom:1px solid #22305e}
   .wrap{max-width:1000px;margin:0 auto;padding:14px}
@@ -17,49 +16,49 @@
   .tabbtn{border:1px solid #22305e;background:#121a33;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:800}
   .tabbtn.active{border-color:#4aa3ff}
   .card{
-  background:#121a33;
-  border:1px solid #22305e;
-  border-radius:16px;
-  padding:12px;
-  margin-top:12px;
-  overflow:hidden;
-}
+    background:#121a33;
+    border:1px solid #22305e;
+    border-radius:16px;
+    padding:12px;
+    margin-top:12px;
+    overflow:hidden;
+  }
   label{display:block;font-size:12px;color:#a9b4d0;margin:10px 0 6px}
   input, select, textarea{
-  width: 100%;
-  max-width: 100%;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #22305e;
-  background: #0e1530;
-  color: #eef2ff;
-}
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #22305e;
+    background: #0e1530;
+    color: #eef2ff;
+  }
   textarea{min-height:150px;}
   .grid{display:grid;gap:12px}
   @media(min-width:900px){.grid.cols2{grid-template-columns:1fr 1fr}}
- /* Mobile-first: stack fields */
-.row{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:10px;
-}
-/* Only go 2-column when there's room */
-@media (min-width: 700px){
+
+  /* Mobile-first: stack fields */
   .row{
-    grid-template-columns: 1fr 1fr;
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:10px;
   }
-/* Let button groups wrap on small screens */
-.actions, .btnrow, .tabs, .toolbar{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-  
-/* Buttons take up space nicely and wrap instead of overlapping */
-.btn, .tabbtn{
-  flex: 1 1 160px;
-  white-space: normal;
-}
+  /* Only go 2-column when there's room */
+  @media (min-width: 700px){
+    .row{ grid-template-columns: 1fr 1fr; }
+  }
+  /* Let button groups wrap on small screens */
+  .actions, .btnrow, .tabs, .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  /* Buttons take up space nicely and wrap instead of overlapping */
+  .btn, .tabbtn{
+    flex: 1 1 160px;
+    white-space: normal;
+  }
+
   .btn{border:1px solid #22305e;background:#1a2550;color:#eef2ff;padding:10px 12px;border-radius:12px;font-weight:900}
   .btn.primary{background:#1f5bff;border-color:#2b6cff}
   .btn.good{background:#19b56f;border-color:#1ba86a}
@@ -67,11 +66,17 @@
   .muted{color:#a9b4d0;font-size:13px}
   .kpi{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #22305e;border-radius:14px;background:#0c1230;margin-top:8px}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;white-space:pre-wrap}
+
+  /* NEW: highlight selected trip in list */
+  .kpi.selectedTrip{
+    outline:2px solid #4aa3ff;
+    box-shadow: 0 0 0 2px rgba(74,163,255,0.25);
+  }
 </style>
 </head>
 <body>
 <header><div class="wrap">
-  <h1>Trucking Made Simple — Blueprint (Owner‑Operator Edition)</h1>
+  <h1>Trucking Made Simple — Blueprint (Owner-Operator Edition)</h1>
   <div class="tabs">
     <button class="tabbtn active" data-tab="settings">Settings</button>
     <button class="tabbtn" data-tab="blueprint">Blueprint</button>
@@ -80,7 +85,7 @@
     <button class="tabbtn" data-tab="profiles">Shipper/Consignee</button>
   </div>
   <div class="muted" style="margin-top:8px">
-    No‑Touch Rule: Only <b>Settings</b> is editable. Blueprint/Brokers are read‑only outputs. Data saves on this phone (localStorage).
+    No-Touch Rule: Only <b>Settings</b> is editable. Blueprint/Brokers are read-only outputs. Data saves on this phone (localStorage).
   </div>
 </div></header>
 
@@ -91,7 +96,7 @@
       <h2 style="margin:0 0 8px">Mode</h2>
       <label>Fleet Mode (include payroll)</label>
       <select id="fleetMode">
-        <option value="false">OFF (Owner‑Operator)</option>
+        <option value="false">OFF (Owner-Operator)</option>
         <option value="true">ON (Fleet Mode)</option>
       </select>
       <label>Company driver wage per week (only used when Fleet Mode ON)</label>
@@ -106,7 +111,7 @@
       </div>
       <div class="row">
         <div><label>Hours away per load</label><input id="hoursPerLoad" type="number" step="0.25"/></div>
-        <div><label>Days away per load (auto‑sync)</label><input id="daysPerLoad" type="number" step="0.01"/></div>
+        <div><label>Days away per load (auto-sync)</label><input id="daysPerLoad" type="number" step="0.01"/></div>
       </div>
       <div class="row">
         <div><label>Avg miles/load (OTR)</label><input id="avgMilesLoadOtr" type="number" step="1"/></div>
@@ -209,7 +214,7 @@
 
 <section id="tab-blueprint" class="tab" style="display:none">
   <div class="card">
-    <h2 style="margin:0 0 6px">Blueprint (Read‑Only)</h2>
+    <h2 style="margin:0 0 6px">Blueprint (Read-Only)</h2>
     <div class="muted">Minimum sustainable rate per mile for each scenario + O.T.R.A.F.F from saved loads.</div>
     <div id="blueprintOut"></div>
   </div>
@@ -267,10 +272,20 @@
 
     <div class="card">
       <h2 style="margin:0 0 6px">Load History</h2>
+
       <label>Search</label><input id="trip_search" placeholder="search notes/truck"/>
+
+      <!-- NEW: dropdown under trips -->
+      <label>Trips (quick select)</label>
+      <select id="trip_pick">
+        <option value="">Select a saved load…</option>
+      </select>
+
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" id="btnLoadTripToForm">Load selected into form</button>
         <button class="btn" id="btnExportJson">Copy Trips JSON</button>
       </div>
+
       <div id="trip_list" style="margin-top:10px"></div>
     </div>
   </div>
@@ -511,267 +526,303 @@ function getTrips(){ return loadJSON(KEY_TRIPS, []); }
 function saveTrips(list){ saveJSON(KEY_TRIPS, list); }
 
 function calcTripNet(s, t){
-  const miles=num(t.deadhead)+num(t.loaded);
-  const gross=num(t.gross);
-  const gallons=num(t.gallons);
-  const misc=num(t.misc);
-  const fuel = gallons>0 ? gallons*s.fuelPrice : fuelCostForMiles(s,miles);
-  const net = gross - (fuel + misc + gross*s.pct.factoring + gross*s.pct.tax + gross*s.pct.plates + gross*s.pct.ifta + gross*s.pct.maint + gross*s.pct.hwy + gross*s.pct.tires + gross*s.pct.usdot);
-  return {miles,gross,fuel,net};
+  const miles = num(t.deadhead) + num(t.loaded);
+  const gross = num(t.gross);
+  const gallons = num(t.gallons);
+  const misc = num(t.misc || 0);
+  const hours = num(t.hoursAway || 0);
+
+  const fuelCost = gallons * s.fuelPrice;
+
+  const factoring = gross * s.pct.factoring;
+  const tax = gross * s.pct.tax;
+
+  const plates = gross * s.pct.plates;
+  const ifta = gross * s.pct.ifta;
+  const maint = gross * s.pct.maint;
+  const hwy = gross * s.pct.hwy;
+  const tires = gross * s.pct.tires;
+  const usdot = gross * s.pct.usdot;
+
+  const net = gross 
+    - fuelCost 
+    - misc 
+    - factoring 
+    - tax 
+    - plates 
+    - ifta 
+    - maint 
+    - hwy 
+    - tires 
+    - usdot;
+
+  const mpg = gallons > 0 ? (miles / gallons) : 0;
+  const otraff = hours > 0 ? (net / hours) : 0;
+
+  return { net, mpg, otraff, fuelCost };
 }
 
-function previewTrip(){
-  const s=getSettings();
-  const t={
-    deadhead:num($("trip_deadhead").value), loaded:num($("trip_loaded").value),
-    gross:num($("trip_gross").value), gallons:num($("trip_gallons").value),
-    misc:num($("trip_misc").value), hoursAway:num($("trip_hoursAway").value)
-  };
-  const miles=t.deadhead+t.loaded;
-  const mpg=t.gallons>0 ? miles/t.gallons : 0;
-  const {net}=calcTripNet(s,t);
-  const otraf = t.hoursAway>0 ? net/t.hoursAway : 0;
-  $("trip_mpg").textContent = mpg>0 ? mpg.toFixed(2) : "—";
-  $("trip_net").textContent = money(net);
-  $("trip_otraff").textContent = t.hoursAway>0 ? money(otraf)+"/hr" : "—";
-}
-["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway"].forEach(id=>$(id).addEventListener("input",previewTrip));
+/* ---------------- TRIPS ---------------- */
 
-$("btnSaveTrip").addEventListener("click",()=>{
-  const t={
-    id: "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16),
-    ts:new Date().toISOString(),
-    truck: $("trip_truck").value.trim()||"Truck",
-    deadhead:num($("trip_deadhead").value),
-    loaded:num($("trip_loaded").value),
-    gross:num($("trip_gross").value),
-    gallons:num($("trip_gallons").value),
-    misc:num($("trip_misc").value),
-    hoursAway:num($("trip_hoursAway").value),
-    notes:$("trip_notes").value.trim()
-  };
-  const list=getTrips(); list.unshift(t); saveTrips(list);
-  ["trip_deadhead","trip_loaded","trip_gross","trip_gallons","trip_misc","trip_hoursAway","trip_notes"].forEach(id=>$(id).value="");
-  previewTrip(); refreshAll();
-});
+function renderTrips(){
+  const list = getTrips();
+  const q = $("trip_search").value.toLowerCase();
+  const out = $("trip_list");
+  const pick = $("trip_pick");
 
-$("btnClearTrips").addEventListener("click",()=>{ if(confirm("Clear all loads on this phone?")){ saveTrips([]); refreshAll(); }});
-$("trip_search").addEventListener("input",()=>refreshTripsList());
+  out.innerHTML = "";
+  pick.innerHTML = `<option value="">Select a saved load…</option>`;
 
-$("btnExportJson").addEventListener("click",()=>{
-  const txt=JSON.stringify(getTrips(),null,2);
-  navigator.clipboard?.writeText(txt);
-  alert("Trips JSON copied (if clipboard allowed).");
-});
+  list.forEach((t, i)=>{
+    const label = `${t.truck || "Truck"} | $${t.gross} | ${t.loaded} mi | ${t.notes || ""}`;
+    const text = label.toLowerCase();
+    if(q && !text.includes(q)) return;
 
-function refreshTripsList(){
-  const q=($("trip_search").value||"").toLowerCase().trim();
-  const s=getSettings();
-  const list=getTrips().filter(t=>{
-    if(!q) return true;
-    const hay=`${t.truck||""} ${t.notes||""} ${t.ts||""}`.toLowerCase();
-    return hay.includes(q);
-  }).slice(0,50);
+    const div = document.createElement("div");
+    div.className = "kpi";
+    div.innerHTML = `
+      <div>
+        <b>${label}</b>
+        <div class="mono">Deadhead: ${t.deadhead} | Gallons: ${t.gallons} | Hours: ${t.hoursAway}</div>
+      </div>
+      <button class="btn bad">Delete</button>
+    `;
 
-  const box=$("trip_list");
-  if(!list.length){ box.innerHTML='<div class="muted">No saved loads yet.</div>'; return; }
+    div.querySelector("button").onclick = ()=>{
+      const l = getTrips();
+      l.splice(i,1);
+      saveTrips(l);
+      renderTrips();
+      refreshAll();
+    };
 
-  box.innerHTML = list.map(t=>{
-    const calc=calcTripNet(s,t);
-    const otraf = num(t.hoursAway)>0 ? calc.net/num(t.hoursAway) : 0;
-    return `<div class="kpi"><div>
-      <b>${t.truck}</b><div class="muted">${new Date(t.ts).toLocaleString()} • Miles ${calc.miles.toFixed(0)} • Gross ${money(calc.gross)}</div>
-      <div class="muted">${t.notes||""}</div>
-    </div><div><b>${money(calc.net)}</b><div class="muted">OTRAFF ${num(t.hoursAway)>0?money(otraf)+"/hr":"—"}</div></div></div>`;
-  }).join("");
-}
+    out.appendChild(div);
 
-function brokerEmailText(){
-  const s=getSettings();
-  const sc=$("brokerScenario").value;
-  let period="month", miles=s.miles.otrMonth, label="OTR Monthly";
-  if(sc==="LOCAL_MONTH"){period="month"; miles=s.miles.localMonth; label="Local Monthly";}
-  if(sc==="OTR_YEAR"){period="year"; miles=s.miles.otrYear; label="OTR Yearly";}
-  if(sc==="LOCAL_YEAR"){period="year"; miles=s.miles.localYear; label="Local Yearly";}
-  const r=solveGrossRequired(s,miles,period);
-  const mode=s.fleetMode?"FLEET MODE (includes payroll)":"OWNER‑OP MODE";
-  return `Minimum All‑In Rate Basis (${mode})
-
-Scenario: ${label}
-Miles Assumed: ${miles.toLocaleString()}
-Minimum Sustainable Rate Needed: ${money(r.rpm)} per mile
-
-Assumptions:
-- Fuel: $${s.fuelPrice.toFixed(3)}/gal
-- MPG: ${s.truckMpg.toFixed(2)}
-- Factoring: ${(s.pct.factoring*100).toFixed(2)}% of gross
-- Tax reserve: ${(s.pct.tax*100).toFixed(2)}% of gross (no cap)
-- Annual capped reserves (monthly uses cap/12 unless “Continue after cap” ON)
-
-Included: household + business fixed costs, fuel, factoring, tax reserve, and reserve funding.
-`;
-}
-function refreshBrokers(){ $("brokerText").value=brokerEmailText(); }
-$("brokerScenario").addEventListener("change",refreshBrokers);
-$("btnCopyBroker").addEventListener("click",()=>{ navigator.clipboard?.writeText($("brokerText").value); alert("Copied. Paste into email/text."); });
-
-function renderBlueprint(){
-  const s=getSettings();
-  const trips=getTrips();
-  const {hh,biz}=monthlyTotals(s);
-  const mode=s.fleetMode?"FLEET MODE":"OWNER‑OP MODE";
-
-  const scenarios=[
-    ["OTR Monthly","month",s.miles.otrMonth],
-    ["Local Monthly","month",s.miles.localMonth],
-    ["OTR Yearly","year",s.miles.otrYear],
-    ["Local Yearly","year",s.miles.localYear],
-  ];
-
-  const scenHtml = scenarios.map(([name,period,miles])=>{
-    const r=solveGrossRequired(s,miles,period);
-    return `<div class="card">
-      <h3 style="margin:0 0 6px">${name}</h3>
-      <div class="kpi"><b>Minimum $/mile</b><div>${money(r.rpm)}/mile</div></div>
-      <div class="kpi"><b>Gross required</b><div>${money(r.gross)}</div></div>
-      <div class="kpi"><b>Fixed</b><div>${money(r.fixed)}</div></div>
-      <div class="kpi"><b>Fuel</b><div>${money(r.fuel)}</div></div>
-      <div class="muted mono" style="margin-top:8px">factoring ${money(r.factoring)}
-tax ${money(r.tax)}
-plates ${money(r.plates)} | ifta ${money(r.ifta)} | maint ${money(r.maint)}
-hwy ${money(r.hwy)} | tires ${money(r.tires)} | usdot ${money(r.usdot)}</div>
-    </div>`;
-  }).join("");
-
-  // OTRAFf from saved loads
-  const hoursAwayYTD = trips.reduce((a,t)=>a+num(t.hoursAway),0);
-  const netYTD = trips.reduce((a,t)=>a+calcTripNet(s,t).net,0);
-  const otrafYTD = hoursAwayYTD>0 ? netYTD/hoursAwayYTD : 0;
-
-  // monthly modeled hours away (needs avg miles/load)
-  const otrLoads = s.avgMilesLoadOtr>0 ? s.miles.otrMonth/s.avgMilesLoadOtr : 0;
-  const localLoads = s.avgMilesLoadLocal>0 ? s.miles.localMonth/s.avgMilesLoadLocal : 0;
-  const otrHours = otrLoads*s.hoursPerLoad;
-  const localHours = localLoads*s.hoursPerLoad;
-
-  $("blueprintOut").innerHTML = `
-    <div class="kpi"><b>Mode</b><div>${mode}</div></div>
-    <div class="kpi"><b>Household monthly</b><div>${money(hh)}</div></div>
-    <div class="kpi"><b>Business monthly</b><div>${money(biz)}</div></div>
-    <div class="kpi"><b>O.T.R.A.F.F (YTD)</b><div>${hoursAwayYTD>0?money(otrafYTD)+"/hr":"Enter trips to calculate"}</div></div>
-    <div class="kpi"><b>YTD net revenue</b><div>${money(netYTD)}</div></div>
-    <div class="kpi"><b>Monthly hours away model</b><div>OTR ${otrHours.toFixed(1)} hrs • Local ${localHours.toFixed(1)} hrs</div></div>
-    <div class="grid cols2" style="margin-top:12px">${scenHtml}</div>
-  `;
-}
-
-function loadProfiles(key){ return loadJSON(key, []); }
-function saveProfiles(key, list){ saveJSON(key, list); }
-function filterProfiles(list,q){
-  q=(q||"").toLowerCase().trim();
-  if(!q) return list.slice(0,50);
-  return list.filter(p=>{
-    const hay=`${p.name||""} ${p.city||""} ${p.state||""} ${p.zip||""} ${p.phone||""} ${p.email||""} ${p.address||""} ${p.notes||""}`.toLowerCase();
-    return hay.includes(q);
-  }).slice(0,50);
-}
-function renderPick(sel, items){
-  sel.innerHTML="";
-  items.forEach(p=>{
-    const o=document.createElement("option");
-    o.value=p.id;
-    o.textContent=`${p.name||"(no name)"} — ${p.city||""} ${p.state||""} ${p.phone||""}`.trim();
-    sel.appendChild(o);
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = label;
+    pick.appendChild(opt);
   });
 }
-function uuid(){ return "id-"+Math.random().toString(16).slice(2)+"-"+Date.now().toString(16); }
-function upsertProfile(key, profile){
-  let list=loadProfiles(key);
-  if(!profile.id) profile.id=uuid();
-  profile.updatedAt=new Date().toISOString();
-  const idx=list.findIndex(p=>p.id===profile.id || ((p.name||"").toLowerCase()===(profile.name||"").toLowerCase() && (p.zip||"")===(profile.zip||"")));
-  if(idx>=0) list[idx]={...list[idx],...profile};
-  else list.unshift(profile);
-  saveProfiles(key,list);
-  return profile.id;
+
+/* Save trip */
+$("btnSaveTrip").onclick = ()=>{
+  const s = getSettings();
+  const t = {
+    truck: $("trip_truck").value,
+    deadhead: num($("trip_deadhead").value),
+    loaded: num($("trip_loaded").value),
+    gross: num($("trip_gross").value),
+    gallons: num($("trip_gallons").value),
+    misc: num($("trip_misc").value),
+    hoursAway: num($("trip_hoursAway").value),
+    notes: $("trip_notes").value,
+    ts: Date.now()
+  };
+
+  const res = calcTripNet(s,t);
+
+  $("trip_mpg").textContent = res.mpg.toFixed(2);
+  $("trip_net").textContent = money(res.net);
+  $("trip_otraff").textContent = money(res.otraff);
+
+  const list = getTrips();
+  list.unshift(t);
+  saveTrips(list);
+  renderTrips();
+};
+
+/* Clear trips */
+$("btnClearTrips").onclick = ()=>{
+  if(confirm("Delete ALL saved loads?")){
+    saveTrips([]);
+    renderTrips();
+  }
+};
+
+/* Load selected trip */
+$("btnLoadTripToForm").onclick = ()=>{
+  const i = $("trip_pick").value;
+  if(i==="") return;
+  const t = getTrips()[i];
+  if(!t) return;
+
+  $("trip_truck").value = t.truck;
+  $("trip_deadhead").value = t.deadhead;
+  $("trip_loaded").value = t.loaded;
+  $("trip_gross").value = t.gross;
+  $("trip_gallons").value = t.gallons;
+  $("trip_misc").value = t.misc;
+  $("trip_hoursAway").value = t.hoursAway;
+  $("trip_notes").value = t.notes;
+
+  refreshAll();
+};
+
+/* Export JSON */
+$("btnExportJson").onclick = ()=>{
+  const data = JSON.stringify(getTrips(),null,2);
+  navigator.clipboard.writeText(data);
+  alert("Trips JSON copied to clipboard");
+};
+
+/* ---------------- BLUEPRINT ---------------- */
+
+function renderBlueprint(){
+  const s = getSettings();
+  const out = $("blueprintOut");
+  out.innerHTML = "";
+
+  const scenarios = [
+    ["OTR Monthly","OTR_MONTH", solveGrossRequired(s, s.miles.otrMonth,"month")],
+    ["Local Monthly","LOCAL_MONTH", solveGrossRequired(s, s.miles.localMonth,"month")],
+    ["OTR Yearly","OTR_YEAR", solveGrossRequired(s, s.miles.otrYear,"year")],
+    ["Local Yearly","LOCAL_YEAR", solveGrossRequired(s, s.miles.localYear,"year")]
+  ];
+
+  scenarios.forEach(([name,key,r])=>{
+    const div=document.createElement("div");
+    div.className="kpi";
+    div.innerHTML=`
+      <div><b>${name}</b></div>
+      <div>
+        Gross: ${money(r.gross)}<br/>
+        RPM: ${money(r.rpm)}<br/>
+        Fuel: ${money(r.fuel)}
+      </div>
+    `;
+    out.appendChild(div);
+  });
 }
-function deleteProfile(key,id){ saveProfiles(key, loadProfiles(key).filter(p=>p.id!==id)); }
-function clearProfiles(key){ saveProfiles(key, []); }
-function fill(prefix,p){
-  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>$(prefix+"_"+f).value = p?.[f]||"");
+
+/* ---------------- BROKER EMAIL ---------------- */
+
+function renderBroker(){
+  const s = getSettings();
+  const mode = $("brokerScenario").value;
+
+  let r;
+  if(mode==="OTR_MONTH") r = solveGrossRequired(s,s.miles.otrMonth,"month");
+  if(mode==="LOCAL_MONTH") r = solveGrossRequired(s,s.miles.localMonth,"month");
+  if(mode==="OTR_YEAR") r = solveGrossRequired(s,s.miles.otrYear,"year");
+  if(mode==="LOCAL_YEAR") r = solveGrossRequired(s,s.miles.localYear,"year");
+
+  const txt = `
+Hello,
+
+I’m currently booking freight and looking for consistent lanes.
+
+Minimum sustainable rate:
+• ${money(r.rpm)} per mile
+• Gross target: ${money(r.gross)}
+• Fuel-adjusted planning rate
+
+Please send available lanes, rate, and load details.
+
+Thanks,
+`.trim();
+
+  $("brokerText").value = txt;
 }
-function read(prefix){
-  const o={};
-  ["name","phone","city","state","address","zip","email","notes"].forEach(f=>o[f]=$(prefix+"_"+f).value.trim());
-  return o;
+
+$("btnCopyBroker").onclick = ()=>{
+  navigator.clipboard.writeText($("brokerText").value);
+  alert("Broker email copied");
+};
+
+$("brokerScenario").onchange = renderBroker;
+
+/* ---------------- PROFILES ---------------- */
+
+function getShippers(){ return loadJSON(KEY_SHIPPERS, []); }
+function saveShippers(d){ saveJSON(KEY_SHIPPERS,d); }
+
+function getConsignees(){ return loadJSON(KEY_CONSIGNEES, []); }
+function saveConsignees(d){ saveJSON(KEY_CONSIGNEES,d); }
+
+function renderProfiles(){
+  const ship = getShippers();
+  const con = getConsignees();
+
+  $("shipperPick").innerHTML="";
+  ship.forEach((s,i)=>{
+    const o=document.createElement("option");
+    o.value=i;
+    o.textContent=`${s.name} - ${s.city}`;
+    $("shipperPick").appendChild(o);
+  });
+
+  $("consigneePick").innerHTML="";
+  con.forEach((c,i)=>{
+    const o=document.createElement("option");
+    o.value=i;
+    o.textContent=`${c.name} - ${c.city}`;
+    $("consigneePick").appendChild(o);
+  });
 }
 
-let selectedShipper=null, selectedConsignee=null;
+/* Buttons */
+$("btnSaveShipper").onclick = ()=>{
+  const list=getShippers();
+  list.push({
+    name:$("shipper_name").value,
+    phone:$("shipper_phone").value,
+    city:$("shipper_city").value,
+    state:$("shipper_state").value,
+    address:$("shipper_address").value,
+    zip:$("shipper_zip").value,
+    email:$("shipper_email").value,
+    notes:$("shipper_notes").value
+  });
+  saveShippers(list);
+  renderProfiles();
+};
 
-function refreshShippers(){
-  const list=loadProfiles(KEY_SHIPPERS);
-  renderPick($("shipperPick"), filterProfiles(list, $("shipperSearch").value));
-}
-function refreshConsignees(){
-  const list=loadProfiles(KEY_CONSIGNEES);
-  renderPick($("consigneePick"), filterProfiles(list, $("consigneeSearch").value));
-}
+$("btnClearShippers").onclick=()=>{ saveShippers([]); renderProfiles(); };
+$("btnDeleteShipper").onclick=()=>{
+  const i=$("shipperPick").value;
+  if(i==="")return;
+  const l=getShippers(); l.splice(i,1); saveShippers(l); renderProfiles();
+};
 
-$("shipperSearch").addEventListener("input",refreshShippers);
-$("consigneeSearch").addEventListener("input",refreshConsignees);
+$("btnSaveConsignee").onclick = ()=>{
+  const list=getConsignees();
+  list.push({
+    name:$("consignee_name").value,
+    phone:$("consignee_phone").value,
+    city:$("consignee_city").value,
+    state:$("consignee_state").value,
+    address:$("consignee_address").value,
+    zip:$("consignee_zip").value,
+    email:$("consignee_email").value,
+    notes:$("consignee_notes").value,
+    date:$("datePick").value
+  });
+  saveConsignees(list);
+  renderProfiles();
+};
 
-$("shipperPick").addEventListener("change",()=>{
-  selectedShipper=$("shipperPick").value;
-  const p=loadProfiles(KEY_SHIPPERS).find(x=>x.id===selectedShipper);
-  fill("shipper",p);
-});
-$("consigneePick").addEventListener("change",()=>{
-  selectedConsignee=$("consigneePick").value;
-  const p=loadProfiles(KEY_CONSIGNEES).find(x=>x.id===selectedConsignee);
-  fill("consignee",p);
-});
+$("btnClearConsignees").onclick=()=>{ saveConsignees([]); renderProfiles(); };
+$("btnDeleteConsignee").onclick=()=>{
+  const i=$("consigneePick").value;
+  if(i==="")return;
+  const l=getConsignees(); l.splice(i,1); saveConsignees(l); renderProfiles();
+};
 
-$("btnSaveShipper").addEventListener("click",()=>{
-  const data=read("shipper");
-  if(!data.name){alert("Shipper name required.");return;}
-  selectedShipper=upsertProfile(KEY_SHIPPERS,{id:selectedShipper,...data});
-  refreshShippers(); alert("Saved.");
-});
-$("btnDeleteShipper").addEventListener("click",()=>{
-  if(!selectedShipper){alert("Select a shipper first.");return;}
-  deleteProfile(KEY_SHIPPERS, selectedShipper); selectedShipper=null; fill("shipper",null); refreshShippers();
-});
-$("btnClearShippers").addEventListener("click",()=>{
-  if(confirm("Clear all shipper profiles on this phone?")){ clearProfiles(KEY_SHIPPERS); selectedShipper=null; fill("shipper",null); refreshShippers(); }
-});
-
-$("btnSaveConsignee").addEventListener("click",()=>{
-  const data=read("consignee");
-  if(!data.name){alert("Consignee name required.");return;}
-  selectedConsignee=upsertProfile(KEY_CONSIGNEES,{id:selectedConsignee,...data});
-  refreshConsignees(); alert("Saved.");
-});
-$("btnDeleteConsignee").addEventListener("click",()=>{
-  if(!selectedConsignee){alert("Select a consignee first.");return;}
-  deleteProfile(KEY_CONSIGNEES, selectedConsignee); selectedConsignee=null; fill("consignee",null); refreshConsignees();
-});
-$("btnClearConsignees").addEventListener("click",()=>{
-  if(confirm("Clear all consignee profiles on this phone?")){ clearProfiles(KEY_CONSIGNEES); selectedConsignee=null; fill("consignee",null); refreshConsignees(); }
-});
+/* ---------------- GLOBAL REFRESH ---------------- */
 
 function refreshAll(){
+  renderTrips();
   renderBlueprint();
-  refreshBrokers();
-  refreshTripsList();
-  refreshShippers();
-  refreshConsignees();
-  previewTrip();
+  renderBroker();
+  renderProfiles();
 }
 
+/* ---------------- INIT ---------------- */
+
 (function init(){
-  const saved=loadJSON(KEY_SETTINGS,null);
-  setSettings(saved||structuredClone(DEFAULTS));
-  saveJSON(KEY_SETTINGS,getSettings());
+  const s = loadJSON(KEY_SETTINGS, structuredClone(DEFAULTS));
+  setSettings(s);
   refreshAll();
 })();
 </script>
