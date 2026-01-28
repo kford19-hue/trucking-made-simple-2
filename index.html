@@ -285,8 +285,6 @@
         <button class="btn" id="btnLoadTripToForm">Load selected into form</button>
         <button class="btn" id="btnExportJson">Copy Trips JSON</button>
       </div>
-
-      <div id="trip_list" style="margin-top:10px"></div>
     </div>
   </div>
 </section>
@@ -566,43 +564,21 @@ function calcTripNet(s, t){
 
 function renderTrips(){
   const list = getTrips();
-  const q = $("trip_search").value.toLowerCase();
-  const out = $("trip_list");
   const pick = $("trip_pick");
 
-  out.innerHTML = "";
+  // Only populate dropdown — NO list rendering
   pick.innerHTML = `<option value="">Select a saved load…</option>`;
 
   list.forEach((t, i)=>{
     const label = `${t.truck || "Truck"} | $${t.gross} | ${t.loaded} mi | ${t.notes || ""}`;
-    const text = label.toLowerCase();
-    if(q && !text.includes(q)) return;
-
-    const div = document.createElement("div");
-    div.className = "kpi";
-    div.innerHTML = `
-      <div>
-        <b>${label}</b>
-        <div class="mono">Deadhead: ${t.deadhead} | Gallons: ${t.gallons} | Hours: ${t.hoursAway}</div>
-      </div>
-      <button class="btn bad">Delete</button>
-    `;
-
-    div.querySelector("button").onclick = ()=>{
-      const l = getTrips();
-      l.splice(i,1);
-      saveTrips(l);
-      renderTrips();
-      refreshAll();
-    };
-
-    out.appendChild(div);
-
     const opt = document.createElement("option");
     opt.value = i;
     opt.textContent = label;
     pick.appendChild(opt);
   });
+
+  // Completely ignore trip_list so nothing is shown
+  if ($("trip_list")) $("trip_list").innerHTML = "";
 }
 
 /* Save trip */
